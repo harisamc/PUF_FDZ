@@ -8,13 +8,13 @@
 # ===============================
 # INPUT: Public Use File, Datenmodell 3; source: https://zenodo.org/records/15057924
 # ===============================
-# USAGE: Rscript demographicFDZ.R --code=<> --exact=FALSE
+# USAGE: Rscript demographicsDM3.R --code=<> --exact=FALSE
 # ===============================
 # DEBUG:
 # with browser(); 
 # R --args --code=<>; 
 # args <- commandArgs(trailingOnly = TRUE)   # Grab "--code=I78"
-# source("demographicFDZ.R", echo = TRUE)
+# source("demographicsDM3.R", echo = TRUE)
 # ===============================
 # TODO; adjust plot titles when --exact=FALSE, with ".-", e.g. E84.- for searching all subcats
 # TODO; add cmd for plot wish - sex, age, comorbidities?
