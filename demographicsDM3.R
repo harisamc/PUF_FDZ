@@ -23,7 +23,7 @@
 # TODO; Consider that the original data contain all BJ
 # ===============================
 
-# ---- Load Packages ----
+# Load required packages
 suppressPackageStartupMessages({
   library(dplyr)
   library(ggplot2)
@@ -32,142 +32,152 @@ suppressPackageStartupMessages({
   library(optparse)
 })
 
-start_time=Sys.time()
-# ---- Command Line Options ----
-option_list = list(
-  make_option(c("-c", "--code"), type = "character", default = NULL,
-              help = "ICD-10 code prefix (e.g., 'E84' or 'I780')", metavar = "character"),
-  make_option(c("-e", "--exact"), type = "logical", default = FALSE,
-              help = "If TRUE, search for exact ICD code match; if FALSE, match all codes starting with prefix")
+# Parse command line arguments
+parse_cli_args <- function() {
+  option_list <- list(
+    make_option(c("-c", "--code"), type = "character", default = NULL, 
+                help = "ICD-10 code prefix (e.g. 'E84' or 'I780')", metavar = "character"),
+    make_option(c("-e", "--exact"), type = "logical", default = FALSE, 
+                help = "Exact match against ICD code if TRUE; else prefix match")
   )
-
-
-opt_parser = OptionParser(option_list = option_list)
-opt = parse_args(opt_parser)
-
-if (is.null(opt$code)) {
-  stop("Please provide an ICD code using --code, e.g.:
-       Rscript demographicFDZ.R --code=E84", call. = FALSE)
+  parser <- OptionParser(option_list = option_list)
+  opts <- parse_args(parser)
+  if (is.null(opts$code) || nchar(opts$code) == 0) {
+    stop("Argument --code for a valid ICD code is required. 
+      Example usage: Rscript demographicsDM3.R --code=E84", call. = FALSE)
+  }
+  list(code = toupper(opts$code), exact = opts$exact)
 }
 
-code_input = toupper(opt$code)
-exact_match = opt$exact
-cat("Running analysis for ICD code:", code_input, "\n")
-cat("Exact match:", exact_match, "\n")
+# Create output directory if missing
+ensure_output_dir <- function(prefix) {
+  out_dir <- file.path(getwd(), paste0(prefix, "_results"))
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir)
+  }
+  out_dir
+}
 
-# ---- Define Main Function ----
-analyze_icd = function(code_prefix, exact=FALSE) {
-  # Set up directories
-  base_dir = getwd()
-  out_dir = file.path(base_dir, paste0(code_prefix, "_results"))
-  if (!dir.exists(out_dir)) dir.create(out_dir)
-  
-  # Load data
-  ambdiag = read.csv("AMBDIAG.csv", sep = ",")
-  vers = read.csv("VERS.csv", sep = ",")
-  versq = read.csv("VERSQ.csv", sep = ",")
-  print("Loaded: AMBDIAG, VERS, VERSQ")
-  
-  # Prepare demographic data
-  vers = vers %>% select(PSID, VSID, GEBJAHR, PLZ)
-  versq = versq %>% select(PSID, VSID, VERSQ, GESCHLECHT)
-  demo = merge(vers, versq, by = "PSID") %>%
-    distinct(PSID, .keep_all = TRUE)
-  rm(vers, versq)
-  
-  # Subset for ICD code
-  #TODO: add option of entire category or specific code
-  #df_code = ambdiag[grepl(paste0("^", code_prefix), ambdiag$ICDAMB_CODE), ]
+# Load required data
+load_data <- function() {
+  ambdiag <- read.csv("AMBDIAG.csv", stringsAsFactors = FALSE)
+  vers <- read.csv("VERS.csv", stringsAsFactors = FALSE)
+  versq <- read.csv("VERSQ.csv", stringsAsFactors = FALSE)
+  list(ambdiag = ambdiag, vers = vers, versq = versq)
+}
+
+# Prepare demographic data by merging vers and versq
+prepare_demographics <- function(vers, versq) {
+  demog <- merge(
+    vers %>% select(PSID, VSID, GEBJAHR, PLZ),
+    versq %>% select(PSID, VSID, VERSQ, GESCHLECHT),
+    by = "PSID"
+  ) %>% 
+    distinct(PSID, .keep_all = TRUE) %>%
+    mutate(
+      GESCHLECHT = factor(GESCHLECHT, levels = c(1, 2), labels = c("Female", "Male")),
+      ALTER = as.numeric(format(Sys.Date(), "%Y")) - GEBJAHR
+    )
+  demog
+}
+
+# Filter ambdiag data for ICD-10 codes matching prefix or exact code
+filter_icd_data <- function(ambdiag, code_prefix, exact = FALSE) {
   if (exact) {
-    # Match either the base code itself or the code + G
-    df_code = ambdiag[grepl(paste0("^(", code_prefix, "|", code_prefix, "G)$"), ambdiag$ICDAMB_CODE), ]
+    pattern <- paste0("^(", code_prefix, "|", code_prefix, "G)$")
+    df_filtered <- ambdiag %>% filter(grepl(pattern, ICDAMB_CODE))
   } else {
-    # Match all codes starting with the prefix
-    df_code = ambdiag[grepl(paste0("^", code_prefix), ambdiag$ICDAMB_CODE), ]
+    df_filtered <- ambdiag %>% filter(startsWith(ICDAMB_CODE, code_prefix))
   }
-  
-  if (nrow(df_code) == 0) {
-    stop(paste("No cases found for ICD code. Enter code without dots.", code_prefix))
+  if (nrow(df_filtered) == 0) {
+    stop(paste0("No cases found for ICD code prefix: ", code_prefix))
   }
-  
-  df_code_demo = merge(df_code, demo, by = "PSID")
-  
-  df_code_demo$GESCHLECHT = factor(df_code_demo$GESCHLECHT,
-                                    levels = c(1, 2),
-                                    labels = c("Female", "Male"))
-  df_code_demo$Alter = as.numeric(format(Sys.Date(), "%Y")) - df_code_demo$GEBJAHR
-  cat("Saved sex and age data. Plotting ...\n")
+  df_filtered
+}
 
-  # ---- Plot 1: Age by Sex ----
-  p1 = ggplot(df_code_demo, aes(x = Alter, fill = GESCHLECHT)) +
+# Plot age distribution by sex
+plot_age_distribution <- function(df, code_prefix, out_dir) {
+  p <- ggplot(df, aes(x = ALTER, fill = GESCHLECHT)) +
     geom_histogram(binwidth = 10, position = "dodge", color = "black") +
-    labs(title = paste0("Distribution of Age by Sex for ", code_prefix),
-         x = "Age", y = "PSID Count", fill = "Sex") +
+    labs(title = paste0("Age Distribution by Sex for ICD-10: ", code_prefix), 
+         x = "Age", y = "Patient Count", fill = "Sex") +
     theme_minimal()
-  ggsave(file.path(out_dir, paste0(code_prefix, "_age_sex_hist.pdf")), plot = p1, width = 7, height = 5)
-  
-  # ---- Plot 2: Sex Distribution ----
-  sex_counts = df_code_demo %>%
-    count(GESCHLECHT) %>%
-    mutate(perc = n / sum(n) * 100,
-           label = paste0(GESCHLECHT, "\n", n, " (", round(perc, 1), "%)"))
-  p2 = ggplot(sex_counts, aes(x = "", y = n, fill = GESCHLECHT)) +
-    geom_bar(stat = "identity", width = 1, color = "white") +
+  ggsave(filename = file.path(out_dir, paste0(code_prefix, "_age_sex_hist.pdf")), plot = p, width = 7, height = 5)
+}
+
+# Plot sex distribution as a pie chart
+plot_sex_piechart <- function(df, code_prefix, out_dir) {
+  sex_counts <- df %>%
+    count(GESCHLECHT) %>% 
+    mutate(
+      percent = n / sum(n) * 100,
+      label = sprintf("%s\n%d (%.1f%%)", GESCHLECHT, n, percent)
+    )
+  p <- ggplot(sex_counts, aes(x = "", y = n, fill = GESCHLECHT)) +
+    geom_col(width = 1, color = "white") +
     coord_polar(theta = "y") +
-    geom_text(aes(label = label), position = position_stack(vjust = 0.3)) +
-    labs(title = paste0("Proportion of Males and Females with ", code_prefix)) +
+    geom_text(aes(label = label), position = position_stack(vjust = 0.5)) +
+    labs(title = paste0("Sex Distribution for ICD-10: ", code_prefix)) +
     theme_void() +
     theme(legend.position = "none")
-  ggsave(file.path(out_dir, paste0(code_prefix, "_sex_pie.pdf")), plot = p2, width = 6, height = 6)
-  
-  # ---- Comorbidity Analysis ----
-  df_psids = ambdiag %>% filter(PSID %in% df_code_demo$PSID)
-  
-  df_code_counts = df_psids %>%
-    group_by(PSID) %>%
-    summarise(ICD_count = n_distinct(ICDAMB_CODE),
-              ICD_codes = paste(unique(ICDAMB_CODE), collapse = ", ")) %>%
-    ungroup()
-  cat("Running comorbidity analysis ...\n")
-  top_codes = df_code_counts %>%
-    separate_rows(ICD_codes, sep = ",\\s*") %>%
-    count(ICD_codes, sort = TRUE)
-  # TODO; See the range first, then decide on the filtering? 
-  min_patients = 0.1 * length(unique(df_code_demo$PSID))  # ≥10% of patients
-  top_codes = top_codes[top_codes$n >= min_patients, ]
-  # Remove the searched code from the table
-  top_codes = top_codes[top_codes$ICD_codes != code_prefix, ]
-  # Remove ICD Code UUU = Angabe einer ICD-10-GM-Schlüsselnummer nicht erforderlich
-  top_codes = top_codes[top_codes$ICD_codes != "UUU", ]
-  
-  
-  icds = icd_meta_codes %>%
-    filter(year == 2019) %>%
-    select(ICD_codes = icd_sub, label)
+  ggsave(filename = file.path(out_dir, paste0(code_prefix, "_sex_dist_pie.pdf")), plot = p, width = 6, height = 6)
+}
 
-  merged = merge(top_codes, icds, by = "ICD_codes", all.x = TRUE)
-  cat("Plotting ...\n")
-  
-  # ---- Plot 3: Top Comorbidities ----
-  p3 = ggplot(merged %>% slice_max(n, n = 20),
-               aes(x = reorder(label, n), y = n)) +
+# Analyze and return top comorbid ICD codes (≥10% patients)
+analyze_comorbidities <- function(df_main, ambdiag, code_prefix) {
+  psids <- unique(df_main$PSID)
+  df_sub <- ambdiag %>% filter(PSID %in% psids)
+  code_counts <- df_sub %>% 
+    count(ICDAMB_CODE) %>% 
+    filter(n >= 0.1 * length(psids)) %>% 
+    filter(ICDAMB_CODE != code_prefix, ICDAMB_CODE != "UUU") # Exclude main code and 'UUU'
+  code_counts
+}
+
+# Plot top comorbidities as bar chart with ICD labels from icd_meta_codes
+plot_comorbidities <- function(comorbid_df, icd_meta, code_prefix, out_dir) {
+  merged <- comorbid_df %>%
+    left_join(icd_meta %>% filter(year == 2019) %>% select(icd_sub, label), 
+              by = c("ICDAMB_CODE" = "icd_sub")) %>%
+    rename(label = label) %>%
+    arrange(desc(n)) %>%
+    slice_head(n = 20)
+  p <- ggplot(merged, aes(x = reorder(label, n), y = n)) +
     geom_col(fill = "steelblue") +
     coord_flip() +
     labs(
-      title = paste("Most Frequent Comorbidities for", code_prefix, "Patients"),
-      x = "ICD-10 Code/Diagnosis",
-      y = "Number of PSIDs"
+      title = paste0("Top 20 Comorbidities for ICD-10: ", code_prefix),
+      x = "ICD-10 Diagnosis",
+      y = "Patient Count"
     ) +
-    theme_minimal(base_size = 12)
-  
-  ggsave(file.path(out_dir, paste0(code_prefix, "_top_comorbidities.pdf")), plot = p3, width = 12, height = 6)
-  
-  # ---- Save Summary Data ----
-  write.csv(merged, file.path(out_dir, paste0(code_prefix, "_top_codes.csv")), row.names = FALSE)
-  cat("Analysis complete. Results saved to:", out_dir, "\n")
+    theme_minimal()
+  ggsave(filename = file.path(out_dir, paste0(code_prefix, "_top_comorbidities.pdf")), plot = p, width = 12, height = 6)
 }
 
-# ---- Run Function ----
-analyze_icd(code_input, exact=exact_match)
-end_time = Sys.time()
-cat("Execution time:", end_time-start_time, "\n")
+# Main workflow
+run_analysis <- function() {
+  args <- parse_cli_args()
+  cat("Starting analysis for ICD-10 code:", args$code, "(", ifelse(args$exact, "exact match", "prefix match"), ")...\n")
+  out_dir <- ensure_output_dir(args$code)
+  data <- load_data()
+  cat("Data loaded successfully...\n")
+
+  demog <- prepare_demographics(data$vers, data$versq)
+  icd_filtered <- filter_icd_data(data$ambdiag, args$code, args$exact)
+  df_icd_demog <- merge(icd_filtered, demog, by = "PSID")
+
+  plot_age_distribution(df_icd_demog, args$code, out_dir)
+  plot_sex_piechart(df_icd_demog, args$code, out_dir)
+
+  comorbidities <- analyze_comorbidities(df_icd_demog, data$ambdiag, args$code)
+  icd_meta <- ICD10gm::icd_meta_codes
+  plot_comorbidities(comorbidities, icd_meta, args$code, out_dir)
+
+  write.csv(comorbidities, file = file.path(out_dir, paste0(args$code, "_top_comorbidities.csv")), row.names = FALSE)
+  cat("Analysis and plots completed. Outputs saved in:", out_dir, "\n")
+}
+
+# Run script timing
+start_time <- Sys.time()
+run_analysis()
+cat("Script execution time:", Sys.time() - start_time, "\n")
