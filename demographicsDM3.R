@@ -38,7 +38,10 @@ parse_cli_args <- function() {
     make_option(c("-c", "--code"), type = "character", default = NULL, 
                 help = "ICD-10 code prefix (e.g. 'E84' or 'I780')", metavar = "character"),
     make_option(c("-e", "--exact"), type = "logical", default = FALSE, 
-                help = "Exact match against ICD code if TRUE; else prefix match")
+                help = "Exact match against ICD code if TRUE; else prefix match"),
+    make_option(c("-y", "--years"), type = "character", default = "2019",
+                help = "Year(s) for ICD metadata (comma-separated, e.g. '2019' or '2018,2019,2020')", 
+                metavar = "character")
   )
   parser <- OptionParser(option_list = option_list)
   opts <- parse_args(parser)
@@ -46,12 +49,40 @@ parse_cli_args <- function() {
     stop("Argument --code for a valid ICD code is required. 
       Example usage: Rscript demographicsDM3.R --code=E84", call. = FALSE)
   }
-  list(code = toupper(opts$code), exact = opts$exact)
+  # Parse years: convert comma-separated string to numeric vector
+  years <- as.numeric(unlist(strsplit(opts$years, ",")))
+  if (any(is.na(years))) {
+    stop("Invalid year(s) provided. Use comma-separated numeric years, e.g., --years=2019 or --years=2019,2020,2021", 
+         call. = FALSE)
+  }
+
+  # Validate year range: must be between 2019 and current year
+  current_year <- as.numeric(format(Sys.Date(), "%Y"))
+  min_year <- 2019
+  
+  if (any(years < min_year)) {
+    stop(
+      paste0("Invalid year(s): Years before ", min_year, " are not allowed. ",
+             "Invalid year(s): ", paste(years[years < min_year], collapse = ", ")),
+      call. = FALSE
+    )
+  }
+  
+  if (any(years > current_year)) {
+    stop(
+      paste0("Invalid year(s): Years after ", current_year, " are not allowed. ",
+             "Invalid year(s): ", paste(years[years > current_year], collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  list(code = toupper(opts$code), exact = opts$exact, years = years)
 }
 
 # Create output directory if missing
-ensure_output_dir <- function(prefix) {
-  out_dir <- file.path(getwd(), paste0(prefix, "_results"))
+ensure_output_dir <- function(prefix, years) {
+  years_str <- paste(years, collapse = "_")
+  out_dir <- file.path(getwd(), paste0(prefix, "_", years_str, "_results"))
   if (!dir.exists(out_dir)) {
     dir.create(out_dir)
   }
@@ -135,9 +166,9 @@ analyze_comorbidities <- function(df_main, ambdiag, code_prefix) {
 }
 
 # Plot top comorbidities as bar chart with ICD labels from icd_meta_codes
-plot_comorbidities <- function(comorbid_df, icd_meta, code_prefix, out_dir) {
+plot_comorbidities <- function(comorbid_df, icd_meta, code_prefix, years, out_dir) {
   merged <- comorbid_df %>%
-    left_join(icd_meta %>% filter(year == 2019) %>% select(icd_sub, label), 
+    left_join(icd_meta %>% filter(year %in% years) %>% select(icd_sub, label), 
               by = c("ICDAMB_CODE" = "icd_sub")) %>%
     rename(label = label) %>%
     arrange(desc(n)) %>%
@@ -158,7 +189,7 @@ plot_comorbidities <- function(comorbid_df, icd_meta, code_prefix, out_dir) {
 run_analysis <- function() {
   args <- parse_cli_args()
   cat("Starting analysis for ICD-10 code:", args$code, "(", ifelse(args$exact, "exact match", "prefix match"), ")...\n")
-  out_dir <- ensure_output_dir(args$code)
+  out_dir <- ensure_output_dir(args$code, args$years)
   data <- load_data()
   cat("Data loaded successfully...\n")
 
@@ -171,7 +202,7 @@ run_analysis <- function() {
 
   comorbidities <- analyze_comorbidities(df_icd_demog, data$ambdiag, args$code)
   icd_meta <- ICD10gm::icd_meta_codes
-  plot_comorbidities(comorbidities, icd_meta, args$code, out_dir)
+  plot_comorbidities(comorbidities, icd_meta, args$code, args$years, out_dir)
 
   write.csv(comorbidities, file = file.path(out_dir, paste0(args$code, "_top_comorbidities.csv")), row.names = FALSE)
   cat("Analysis and plots completed. Outputs saved in:", out_dir, "\n")
