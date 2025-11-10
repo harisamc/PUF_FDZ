@@ -337,22 +337,22 @@ if (!interactive()) {
 # Test and View
 # source("~/Downloads/fdz_main_r_script.r")
 # ICD_CODE = "E84"
-icd_list = c("C222", "C728", "C812", "C817")
-EXACT_MATCH = TRUE
-CURRENT_YEAR = 2024
-CSV_DIR = "."
-
-# Setup and keep connection
-con = setup_local_database(CSV_DIR)
-# Run all the creation functions
-create_base_population_multi(con, icd_list, exact_match = TRUE)
-create_demographics_table(con, CURRENT_YEAR) # forbidden to print out in FDZ
-create_age_sex_distribution(con)
-create_comorbidity_table(con, icd_list)
-create_metadata_tables(con, icd_list)
-
-# Query the tables:
-age_sex=dbGetQuery(con, "SELECT * FROM RT_AGE_SEX_DIST")
-comorbidities=dbGetQuery(con, "SELECT * FROM RT_COMORBIDITIES")
-dd_res_tab=dbGetQuery(con, "SELECT * FROM DD_RESULT_TABLES")
-dd_res_col=dbGetQuery(con, "SELECT * FROM DD_RESULT_COLS")
+# icd_list = c("C222", "C728", "C812", "C817")
+# EXACT_MATCH = TRUE
+# CURRENT_YEAR = 2024
+# CSV_DIR = "."
+# 
+# # Setup and keep connection
+# con = setup_local_database(CSV_DIR)
+# # Run all the creation functions
+# create_base_population_multi(con, icd_list, exact_match = TRUE)
+# create_demographics_table(con, CURRENT_YEAR) # forbidden to print out in FDZ
+# create_age_sex_distribution(con)
+# create_comorbidity_table(con, icd_list)
+# create_metadata_tables(con, icd_list)
+# 
+# # Query the tables:
+# age_sex=dbGetQuery(con, "SELECT * FROM RT_AGE_SEX_DIST")
+# comorbidities=dbGetQuery(con, "SELECT * FROM RT_COMORBIDITIES")
+# dd_res_tab=dbGetQuery(con, "SELECT * FROM DD_RESULT_TABLES")
+# dd_res_col=dbGetQuery(con, "SELECT * FROM DD_RESULT_COLS")
