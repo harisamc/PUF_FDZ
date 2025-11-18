@@ -160,8 +160,7 @@ count_rd_plz=function(con){
 }
 
 
-rt_rd_plz_grouped=dbGetQuery("SELECT * FROM RT_RD_PLZ_GROUPED")
-write.csv(rt_rd_plz_grouped, "rt_rd_plz_grouped.csv", row.names = FALSE)
+
 # Description: Create the demographics table excluding RDs, remaining pop TT_REMAINING_POP
 # ---------------------------------------------------------------------------------------- #
 # Temporary Table 3: TT_REMAINING_POP with the columns: PSID BJAHR ICD_CODE
@@ -259,8 +258,7 @@ create_age_sex_distribution_remaining = function(con) {
   dbExecute(con, sql)
 }
 
-rt_remaining_pop_age_sex_dist=dbGetQuery("SELECT * FROM RT_REMAINING_POP_AGE_SEX_DIST") 
-write.csv(rt_remaining_pop_age_sex_dist, "rt_remaining_pop_age_sex_dist.csv", row.names = FALSE)
+
 
 # Description: Age-sex distribution of RD
 # ------------------------------------------------------------------------ #
@@ -284,8 +282,6 @@ create_age_sex_distribution = function(con) {
   dbExecute(con, sql)
 }
 
-rt_rd_age_sex_dist = dbGetQuery(con, "SELECT * FROM RT_RD_AGE_SEX_DIST")
-write.csv(rt_rd_age_sex_dist, "rt_rd_age_sex_dist.csv", row.names = FALSE)
 
 
 # Description: Create a table of age and sex distribution for the specific ICD-Codes that accompany 
@@ -395,8 +391,7 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
   ")
 }
 
-rt_specific_icd_age_sex_dist=dbGetQuery("SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST")
-write.csv(rt_specific_icd_age_sex_dist, "rt_specific_icd_age_sex_dist.csv", row.names = FALSE)
+
 
 # Main workflow
 run_local_analysis = function() {
@@ -427,7 +422,21 @@ run_local_analysis = function() {
 
 
 
-# con <- run_local_analysis()
+con <- run_local_analysis()
+rt_remaining_pop_age_sex_dist=dbGetQuery(con, "SELECT * FROM RT_REMAINING_POP_AGE_SEX_DIST") 
+write.csv(rt_remaining_pop_age_sex_dist, "rt_remaining_pop_age_sex_dist.csv", row.names = FALSE)
+
+rt_rd_plz_grouped=dbGetQuery(con, "SELECT * FROM RT_RD_PLZ_GROUPED")
+write.csv(rt_rd_plz_grouped, "rt_rd_plz_grouped.csv", row.names = FALSE)
+
+rt_rd_age_sex_dist = dbGetQuery(con, "SELECT * FROM RT_RD_AGE_SEX_DIST")
+write.csv(rt_rd_age_sex_dist, "rt_rd_age_sex_dist.csv", row.names = FALSE)
+
+
+rt_specific_icd_age_sex_dist=dbGetQuery(con, "SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST")
+write.csv(rt_specific_icd_age_sex_dist, "rt_specific_icd_age_sex_dist.csv", row.names = FALSE)
+
+
 # Example inspect table
 #dbGetQuery(con, "SELECT * FROM TT_SPECIFIC_ICD")
 
