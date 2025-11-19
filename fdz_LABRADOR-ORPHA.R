@@ -1,7 +1,21 @@
-# INPUT: Public Use File, Datenmodell 3; source: https://zenodo.org/records/15057924
-# DM3 (AMBDIAG, KHDIAG, VERS, VERSQ)
+###########################################################################
+##       Skript zur Analyse von LABRADOR-ORPHA Tracerdiagnosen           ##
+##     mit lokalen CSV-Dateien als Datenquelle (ohne FDZ-Anbindung)      ##
+###########################################################################
+## INPUT:                                                                ##
+## - Public Use File, Datenmodell 3;                                     ##
+##   source: https://zenodo.org/records/15057924                         ##
+##   DM3 (AMBDIAG, KHDIAG, VERS, VERSQ)                                  ##
+## - Tracerdiagnosenliste "LABRADOR-ORPHA-Tracerdiagnosen_11_2025.csv"   ##
+##   (Tabulator-getrennt, mit Header und 1 Zeile Metadaten)              ##
+## OUTPUT:                                                               ##
+## - Für jede Tracerdiagnose:                                            ##
+##   - Alters- und Geschlechtsverteilung der betroffenen PSIDs (CSV)     ##
+##   - PLZ2-Verteilung der betroffenen PSIDs (CSV)                       ##
+###########################################################################
 
-# Funktion zum Installieren und Laden von Paketen
+
+# Pakete installieren und laden
 install_and_load <- function(packages) {
   for (pkg in packages) {
     if (!require(pkg, character.only = TRUE, quietly = TRUE)) {
@@ -13,9 +27,7 @@ install_and_load <- function(packages) {
     }
   }
 }
-
-# Installiere und lade Bibliotheken
-required_packages <- c("DBI", "dplyr", "ggplot2", "tidyr", "duckdb")
+required_packages <- c("DBI", "dplyr", "duckdb")
 install_and_load(required_packages)
 
 # Hilfsfunktion: Alter und Altersgruppe berechnen (für SQL)
@@ -81,7 +93,17 @@ execute_query <- function(con, sql) {
   })
 }
 
-# Funktion zum Einrichten der lokalen Datenbank aus CSV-Dateien
+# Wrapper für sichere Abfrage von SQL mit Fehlerhandling
+fetch_query <- function(con, sql) {
+  tryCatch({
+    dbGetQuery(con, sql)
+  }, error = function(e) {
+    message("Fehler bei SQL-Abfrage: ", e$message)
+    stop(e)
+  })
+}
+
+# Lokale DB aus FDZ-Tabellen in CSV-Dateien laden
 setup_local_database <- function(csv_dir = ".", overwrite = TRUE) {
   con <- dbConnect(duckdb::duckdb(), dbdir = ":memory:")
   
@@ -109,6 +131,9 @@ setup_local_database <- function(csv_dir = ".", overwrite = TRUE) {
 
 # Funktion zur Erstellung der Basistabellen
 create_base_tables <- function(con, icd_rd_code, exact_match = TRUE) {
+  # Tabelle löschen, falls bereits vorhanden
+  execute_query(con, "DROP TABLE IF EXISTS TT_BASE_ICD;")
+
   if (exact_match) {
     where_amb <- sprintf("WHERE ICDAMB_CODE = '%s'", icd_rd_code)
     where_kh  <- sprintf("WHERE ICDKH_CODE = '%s'", icd_rd_code)
@@ -125,217 +150,109 @@ create_base_tables <- function(con, icd_rd_code, exact_match = TRUE) {
   )
   
   execute_query(con, sql)
-  message("Basistabellen erfolgreich eingerichtet.")
 }
 
 # Funktion zur Erstellung der Demografietabelle für RD
 create_demographics_table <- function(con, current_year = 2025) {
-  sql <- create_demographics_query("TT_DEMOGRAPHICS_RD_UNIQUE", current_year)
-  execute_query(con, sql)
-}
+  # Tabelle löschen, falls bereits vorhanden
+  execute_query(con, "DROP TABLE IF EXISTS TT_DEMOGRAPHICS;")
 
-# Funktion zur Erstellung der Restpopulation (ohne RD Patienten)
-create_base_population_remaining <- function(con) {
-  message("Erstelle Restpopulation (ohne RD Patienten)...")
-  execute_query(con, "
-    CREATE LOCAL TEMP TABLE TT_REMAINING_POP AS
-    SELECT a.PSID, a.BJAHR, a.ICDAMB_CODE AS ICD_CODE
-    FROM AMBDIAG a
-    LEFT JOIN TT_BASE_ICD r ON a.PSID = r.PSID
-    WHERE r.PSID IS NULL
-    UNION ALL
-    SELECT k.PSID, k.BJAHR, k.ICDKH_CODE AS ICD_CODE
-    FROM KHDIAG k
-    LEFT JOIN TT_BASE_ICD r ON k.PSID = r.PSID
-    WHERE r.PSID IS NULL
-  ")
-}
-
-# Funktion zur Erstellung der Demografietabelle für die Restpopulation
-create_demographics_table_remaining <- function(con, current_year = 2025) {
-  sql <- paste0(
-    "CREATE LOCAL TEMP TABLE TT_DEMOGRAPHICS_REMAIN AS
-     SELECT 
-       r.PSID, 
-       r.ICD_CODE, 
-       r.BJAHR,
-       v.PLZ,
-       (", current_year, " - v.GEBJAHR) AS ALTER,
-       ", age_group_case("v.GEBJAHR", current_year), " AS AGE_GROUP,
-       ", gender_case, " AS GESCHLECHT_LABEL
-     FROM TT_REMAINING_POP r
-     INNER JOIN (
-       SELECT PSID, MIN(GEBJAHR) AS GEBJAHR, MIN(PLZ) AS PLZ
-       FROM VERS
-       GROUP BY PSID
-     ) v ON r.PSID = v.PSID
-     INNER JOIN (
-       SELECT PSID, GESCHLECHT
-       FROM (
-         SELECT PSID, GESCHLECHT, ROW_NUMBER() OVER (PARTITION BY PSID ORDER BY PSID) AS rn
-         FROM VERSQ
-       ) sub
-       WHERE rn = 1
-     ) vq ON r.PSID = vq.PSID;
-  ")
+  sql <- create_demographics_query("TT_DEMOGRAPHICS", current_year)
   execute_query(con, sql)
 }
 
 # Funktion: Erstellen der Tabelle für Alters- und Geschlechtsverteilung (Default: der RD-Population)
-create_age_sex_distribution <- function(con, table_name = "TT_DEMOGRAPHICS_RD_UNIQUE", result_table = "RT_RD_AGE_SEX_DIST") {
+create_age_sex_dist <- function(con) {
+  # Tabelle löschen, falls bereits vorhanden
+  execute_query(con, "DROP TABLE IF EXISTS RT_AGE_SEX_DIST;")
+  
   sql <- paste0(
-    "CREATE TABLE ", result_table, " AS
+    "CREATE TABLE RT_AGE_SEX_DIST AS
      SELECT 
        ICD_CODE,
        BJAHR,
        AGE_GROUP AS ALTERSGRUPPE,
        GESCHLECHT_LABEL,
        COUNT(PSID) AS CNT_D_PSID
-     FROM ", table_name, "
+     FROM TT_DEMOGRAPHICS
      GROUP BY ICD_CODE, BJAHR, AGE_GROUP, GESCHLECHT_LABEL;"
   )
   execute_query(con, sql)
-}
 
-# Funktion: Erstellen der Tabelle für Alters- und Geschlechtsverteilung der Restpopulation
-create_age_sex_distribution_remaining <- function(con) {
-  create_age_sex_distribution(con, table_name = "TT_DEMOGRAPHICS_REMAIN", result_table = "RT_REMAINING_POP_AGE_SEX_DIST")
+  # Tabelle auslesen und zurückgeben
+  return(fetch_query(con, "SELECT * FROM RT_AGE_SEX_DIST"))
 }
 
 # Funktion: Erstellen der Tabelle für die 2-stellige PLZ der RD PSIDs
-count_rd_plz <- function(con) {
+create_plz_dist <- function(con) {
+  # Tabelle löschen, falls bereits vorhanden
+  execute_query(con, "DROP TABLE IF EXISTS RT_PLZ_DIST;")
+
   execute_query(con, "
-    CREATE TABLE RT_RD_PLZ_GROUPED AS
+    CREATE TABLE RT_PLZ_DIST AS
     SELECT SUBSTRING(PLZ, 1, 2) AS PLZ2, COUNT(DISTINCT PSID) AS CNT_D_PSID
-    FROM TT_DEMOGRAPHICS_RD_UNIQUE
+    FROM TT_DEMOGRAPHICS
     GROUP BY SUBSTRING(PLZ, 1, 2)
     ORDER BY CNT_D_PSID DESC;
   ")
+
+  # Tabelle auslesen und zurückgeben
+  return(fetch_query(con, "SELECT * FROM RT_PLZ_DIST"))
 }
 
-# Funktion: Erstellen der Alters- und Geschlechtsverteilung für spezifische ICD-Codes, die die seltene Krankheit begleiten
-create_icd_occurrence_table_rd <- function(con, icd_list) {
-  
-  exact_codes <- c("R53", "F480", "T733")
-  prefix_codes <- setdiff(icd_list, exact_codes)
-  
-  exact_clause_amb <- get_icd_filter("ICDAMB_CODE", exact_codes, exact = TRUE)
-  exact_clause_kh  <- get_icd_filter("ICDKH_CODE", exact_codes, exact = TRUE)
-  prefix_clause_amb <- paste0("(", paste(paste0("ICDAMB_CODE LIKE '", prefix_codes, "%'"), collapse = " OR "), ")")
-  prefix_clause_kh  <- paste0("(", paste(paste0("ICDKH_CODE LIKE '", prefix_codes, "%'"), collapse = " OR "), ")")
-  
-  sql <- paste0("
-    CREATE LOCAL TEMP TABLE TT_SPECIFIC_ICD AS
+# Funktion: Lade Tracerdiagnosecodes aus CSV-Datei
+load_tracer_codes <- function(dir, file_name) {
+  tracer_path <- file.path(dir, file_name)
+  if (!file.exists(tracer_path)) {
+    cat("Tracerdiagnosenliste", file_name, "fehlt. Bitte Datei in Verzeichnis", dir, "kopieren.\n")
+    stop("Skript wird abgebrochen, da Tracerdiagnosenliste fehlt.")
+  }
+  tracer_table <- read.csv(tracer_path,
+                           header = TRUE,
+                           skip = 1,
+                           sep = "\t",
+                           dec = ",",
+                           stringsAsFactors = FALSE)
 
-    -- EXACT MATCH BLOCK
-    SELECT DISTINCT
-      a.PSID,
-      a.ICDAMB_CODE AS ICD_CODE,
-      a.ICDAMB_CODE AS ICD_GROUP,     
-      a.BJAHR
-    FROM AMBDIAG a
-    INNER JOIN TT_BASE_ICD b ON a.PSID=b.PSID
-    WHERE ", exact_clause_amb, "
+  # Entferne den Punkt im ICD-Code falls vorhanden
+  tracer_table[ , 1] <- gsub("\\.", "", tracer_table[ , 1])
 
-    UNION ALL
-
-    SELECT DISTINCT
-      a.PSID,
-      a.ICDKH_CODE AS ICD_CODE,
-      a.ICDKH_CODE AS ICD_GROUP,     
-      a.BJAHR
-    FROM KHDIAG a
-    INNER JOIN TT_BASE_ICD b ON a.PSID=b.PSID
-    WHERE ", exact_clause_kh, "
-
-    UNION ALL
-
-    -- PREFIX GROUPING BLOCK
-    SELECT DISTINCT
-      a.PSID,
-      a.ICDAMB_CODE AS ICD_CODE,
-      SUBSTRING(a.ICDAMB_CODE, 1, 3) AS ICD_GROUP,
-      a.BJAHR
-    FROM AMBDIAG a
-    INNER JOIN TT_BASE_ICD b ON a.PSID=b.PSID
-    WHERE ", prefix_clause_amb, "
-
-    UNION ALL
-
-    SELECT DISTINCT
-      a.PSID,
-      a.ICDKH_CODE AS ICD_CODE,
-      SUBSTRING(a.ICDKH_CODE, 1, 3) AS ICD_GROUP,
-      a.BJAHR
-    FROM KHDIAG a
-    INNER JOIN TT_BASE_ICD b ON a.PSID=b.PSID
-    WHERE ", prefix_clause_kh, ";
-  ")
-  execute_query(con, sql)
-
-  execute_query(con, "
-    CREATE LOCAL TEMP TABLE TT_SPECIFIC_ICD_AGE_SEX_DIST AS
-    SELECT 
-      i.PSID,
-      i.ICD_GROUP,
-      i.BJAHR,
-      d.GESCHLECHT_LABEL,
-      d.AGE_GROUP
-    FROM TT_SPECIFIC_ICD i
-    LEFT JOIN TT_DEMOGRAPHICS_RD_UNIQUE d ON i.PSID = d.PSID;
-  ")
-  
-  execute_query(con, "
-    CREATE TABLE RT_SPECIFIC_ICD_AGE_SEX_DIST AS
-    SELECT 
-      ICD_GROUP,
-      BJAHR,
-      GESCHLECHT_LABEL,
-      AGE_GROUP,
-      COUNT(DISTINCT PSID) AS CNT_D_PSID
-    FROM TT_SPECIFIC_ICD_AGE_SEX_DIST
-    GROUP BY ICD_GROUP, BJAHR, GESCHLECHT_LABEL, AGE_GROUP
-    ORDER BY ICD_GROUP, BJAHR, GESCHLECHT_LABEL, AGE_GROUP;
-  ")
+  return(tracer_table[ , 1])
 }
 
 # Funktion: Hauptworkflow
-run_local_analysis <- function(csv_dir = ".", current_year = 2025) {
-  con <- setup_local_database(csv_dir)
+run_local_analysis <- function(input_dir = ".", output_dir = ".", tracer_file_name, current_year = 2025) {
+  con <- setup_local_database(input_dir)
+
+  # Erstelle Ausgabeordner, falls nicht vorhanden
+  if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+  }
   
-  icd_rd_code <- "Q780"
-  icd_list <- c("S02","S12","S22","S32","S42","S52","S62","S72",
-                "S82","S92","T02","T08","T10","T12","I10","I15","M54",
-                "R52","M25","M796","M798","M799")
+  # Lade Tracerdiagnosen
+  tracer_codes <- load_tracer_codes(input_dir, tracer_file_name)
+
+  # Verarbeite jede Tracerdiagnose
+  for (code in tracer_codes) {
+    message("Verarbeite Tracerdiagnose: ", code)
+    create_base_tables(con, code, exact_match = TRUE)
+    create_demographics_table(con, current_year)
+    age_sex_dist <- create_age_sex_dist(con)
+    plz_dist <- create_plz_dist(con)
+    write.csv(age_sex_dist, file = file.path(output_dir, sprintf("%s_age_sex_dist.csv", code)))
+    write.csv(plz_dist, file = file.path(output_dir, sprintf("%s_plz_dist.csv", code)), row.names = FALSE)
+  }
   
-  create_base_tables(con, icd_rd_code, exact_match = TRUE)
-  create_demographics_table(con, current_year)
-  create_age_sex_distribution(con)
-  create_icd_occurrence_table_rd(con, icd_list)
-  create_base_population_remaining(con)
-  create_demographics_table_remaining(con, current_year)
-  create_age_sex_distribution_remaining(con)
-  count_rd_plz(con)
-  
-  message("Alle Tabellen wurden erfolgreich erstellt.")
-  return(con)
+  # Schließe die Datenbankverbindung
+  dbDisconnect(con, shutdown = TRUE)
+
+  message("Analyse abgeschlossen, alle Tracercodes verarbeitet.")
 }
 
 # Führe die Analyse durch
-con <- run_local_analysis(".")
-
-# Lies Ergebnisse aus und exportiere als CSV
-rt_remaining_pop_age_sex_dist <- dbGetQuery(con, "SELECT * FROM RT_REMAINING_POP_AGE_SEX_DIST")
-write.csv(rt_remaining_pop_age_sex_dist, "rt_remaining_pop_age_sex_dist.csv", row.names = FALSE)
-
-rt_rd_plz_grouped <- dbGetQuery(con, "SELECT * FROM RT_RD_PLZ_GROUPED")
-write.csv(rt_rd_plz_grouped, "rt_rd_plz_grouped.csv", row.names = FALSE)
-
-rt_rd_age_sex_dist <- dbGetQuery(con, "SELECT * FROM RT_RD_AGE_SEX_DIST")
-write.csv(rt_rd_age_sex_dist, "rt_rd_age_sex_dist.csv", row.names = FALSE)
-
-rt_specific_icd_age_sex_dist <- dbGetQuery(con, "SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST")
-write.csv(rt_specific_icd_age_sex_dist, "rt_specific_icd_age_sex_dist.csv", row.names = FALSE)
-
-# Schließe die Datenbankverbindung
-dbDisconnect(con, shutdown = TRUE)
+run_local_analysis(
+  input_dir = file.path(getwd(), "input"),
+  output_dir = file.path(getwd(), "output"),
+  tracer_file_name = "LABRADOR-ORPHA-Tracerdiagnosen_11_2025.csv",
+  current_year = 2025
+)
