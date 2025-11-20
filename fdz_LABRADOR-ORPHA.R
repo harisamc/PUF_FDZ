@@ -224,6 +224,9 @@ load_tracer_codes <- function(dir, file_name) {
 run_local_analysis <- function(input_dir = ".", output_dir = ".", tracer_file_name, current_year = 2025) {
   con <- setup_local_database(input_dir)
 
+  all_age_sex_dist <- NULL
+  all_plz_dist <- NULL
+
   # Erstelle Ausgabeordner, falls nicht vorhanden
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
@@ -239,9 +242,25 @@ run_local_analysis <- function(input_dir = ".", output_dir = ".", tracer_file_na
     create_demographics_table(con, current_year)
     age_sex_dist <- create_age_sex_dist(con)
     plz_dist <- create_plz_dist(con)
-    write.csv(age_sex_dist, file = file.path(output_dir, sprintf("%s_age_sex_dist.csv", code)))
+
+    # Füge zu Gesamtergebnissen hinzu
+    if (nrow(age_sex_dist) > 0) {
+      all_age_sex_dist <- rbind(all_age_sex_dist, age_sex_dist)
+    }
+    if (nrow(plz_dist) > 0) {
+      plz_dist$ICD_CODE <- code
+      plz_dist <- plz_dist[, c("ICD_CODE", "PLZ2", "CNT_D_PSID")]
+      all_plz_dist <- rbind(all_plz_dist, plz_dist)
+    }
+
+    # Speichere Einzelergebnisse als CSV
+    write.csv(age_sex_dist, file = file.path(output_dir, sprintf("%s_age_sex_dist.csv", code)), row.names = FALSE)
     write.csv(plz_dist, file = file.path(output_dir, sprintf("%s_plz_dist.csv", code)), row.names = FALSE)
   }
+
+  # Speichere Gesamtergebnisse als CSV
+  write.csv(all_age_sex_dist, file = file.path(output_dir, "ALL_age_sex_dist.csv"), row.names = FALSE)
+  write.csv(all_plz_dist, file = file.path(output_dir, "ALL_plz_dist.csv"), row.names = FALSE)
   
   # Schließe die Datenbankverbindung
   dbDisconnect(con, shutdown = TRUE)
