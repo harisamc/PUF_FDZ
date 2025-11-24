@@ -1,0 +1,276 @@
+icdcode	orphacode	Diagnosebezeichnung	Orpha.Klassifikationsebene
+D51.1	35858	Imerslund-Gräsbeck-Syndrom	Disorder
+D51.2	859	Transcobalamin-II-Mangel	Disorder
+D56.2	231237	Delta-Beta-Thalassämie	Disorder
+D59.10	56425	CAD [Kälteagglutininkrankheit]	Disorder
+D59.5	447	Marchiafava-Micheli-Anämie	Disorder
+D61.3	88	Idiopathische aplastische Anämie	Disorder
+D68.01	99147	Erworbenes Von-Willebrand-Jürgens-Syndrom	Disorder
+D68.23	327	Faktor-VII-Mangel	Disorder
+D68.24	328	Faktor-X-Mangel	Disorder
+D68.25	330	Defekt des Hageman-Faktors	Disorder
+D69.53	3325	Heparininduzierte Thrombozytopenie Typ II	Disorder
+D76.2	158048	Hämophagozytäres Syndrom bei Infektion	Disorder
+D80.7	169139	Transiente Hypogammaglobulinämie der Kindheit	Disorder
+D81.0	33355	Retikuläre Dysgenesie	Disorder
+D81.3	277	ADA [Adenosindesaminase]-Mangel	Disorder
+D81.4	83471	Nezelof-Syndrom	Disorder
+D81.5	760	PNP [Purinnukleosid-Phosphorylase]-Mangel	Disorder
+D81.7	572	Haupthistokompatibilitäts-Komplex-Klasse-II-Defekt	Disorder
+D82.0	906	Immundefekt mit Thrombozytopenie und Ekzem	Disorder
+D83.8	477661	IL21-abhängige infantile chronisch-entzündliche Darmerkrankung	Disorder
+D86.0	797	Lungenkrankheit bei Sarkoidose	Disorder
+D86.1	797	Sarkoidose der Lymphknoten	Disorder
+D86.2	797	Sarkoidose der Lunge mit Sarkoidose der Lymphknoten	Disorder
+D86.3	797	Boeck-Lupoid	Disorder
+E10.73	3463	Wolfram-Syndrom, entgleist	Disorder
+E13.60	2297	Insulinresistenz-Syndrom, Typ A	Disorder
+E13.61	2297	Insulinresistenz-Syndrom, Typ A, entgleist	Disorder
+E13.91	769	Rabson-Mendenhall-Syndrom, entgleist	Disorder
+E24.0	96253	ACTH [Adrenocorticotropes Hormon]-Hypersekretion der Hypophyse	Disorder
+E24.1	199244	Nelson-Syndrom	Disorder
+E24.3	99889	Cushing-Syndrom durch ektope ACTH [Adrenocorticotropes Hormon]-Produktion	Disorder
+E27.2	95409	Addison-Krise	Disorder
+E34.50	90797	Partielle Androgen-Insensitivität [PAIS]	Disorder
+E34.8	64	Alström-Syndrom	 Disorder
+E70.0	79254	Fölling-Krankheit	Subtype of disorder
+E71.2	79197	Stoffwechselstörung verzweigtkettiger Aminosäuren	Group of disorders
+E79.1	510	HPRT [Hypoxanthin-Guanin-Phosphoribosyltransferase]-Mangel, Grad IV	Disorder
+E80.1	101330	PCT [Porphyria cutanea tarda]	Disorder
+E83.50	280062	Calciphylaxie	Disorder
+E84.0	586	Fibrozystische Lungenkrankheit	Disorder
+E84.1	586	Distales intestinales Obstruktionssyndrom	Disorder
+E84.80	586	Zystische Fibrose mit Manifestationen an der Lunge und am Verdauungstrakt	Disorder
+E84.87	586	Zystische Fibrose mit sonstigen multiplen Manifestationen	Disorder
+E84.88	586	Neonatale Gelbsucht bei Mukoviszidose	Disorder
+E84.9	586	CF [Fibrosis cystica]	Disorder
+E85.8	330001	Wildtyp-ATTR-Amyloidose	 Disorder
+E88.00	60	A1-PI [Alpha-1-Proteinase-Inhibitor]-Mangel	Disorder
+F80.3	98818	Erworbene Aphasie mit Epilepsie	Disorder
+F98.41	306765	Stereotype Bewegungsstörung mit Selbstverletzung	Group of disorders
+G00.1	55655	Meningitis durch Pneumokokken	Disorder
+G04.1	289326	Humane T-Zell-lymphotrope Virus-assoziierte Myelopathie	Disorder
+G12.0	83330	Spinale Muskelatrophie (SMA), proximale, Typ 1	Subtype of disorder
+G12.1	70	Spinale Muskelatrophie (SMA)	Disorder	
+G14	2942	Postpoliomyelitis-Syndrom	Disorder
+G21.3	97349	Postenzephalitischer Parkinsonismus	Disorder
+G37.1	221074	Demyelinisierende Enzephalopathie des Corpus callosum	Disorder
+G37.5	228165	Baló-Krankheit	Disorder
+G51.2	2483	Melkersson-Rosenthal-Syndrom	Disorder
+G51.3	221083	Bell-Spasmus	Disorder
+G54.5	2901	Neuralgische Amyotrophie	Disorder
+G70.0	589	Myasthenia gravis	Disorder
+G71.1	273	Myotone Dystrophie Steinert	 Disorder
+G83.5	2406	Locked-in-Syndrom	Disorder
+G90.5	99995	Komplexes regionales Schmerzsyndrom Typ I	Subtype of disorder
+G90.6	99994	Chronic regional pain syndrome [CRPS] Typ II	Subtype of disorder
+G90.7	83452	Komplexes regionales Schmerzsyndrom	Disorder
+H34.1	648684	Augenzentralarterienverschluss	Disorder
+H35.1	90050	Frühgeborenenretinopathie	Disorder
+H95.8	90059	Operationsbedingter akuter sensorineuraler Hörverlust	Disorder
+I00	3099	Akute Arthritis bei rheumatischem Fieber	Disorder
+I01.0	3099	Aktive Perikarditis mit rheumatischem Fieber	Disorder
+I01.2	3099	Aktive rheumatische myokardiale Insuffizienz	Disorder
+I01.8	3099	Aktive Linksherzinsuffizienz bei rheumatischem Fieber	Disorder
+I01.9	3099	Aktive rheumatische Herzkrankheit	Disorder
+I27.20	70591	Chronische thromboembolische pulmonale Hypertension	Disorder
+I27.8	97214	Eisenmenger-Komplex	Disorder
+I78.0	774	Hereditäre hämorrhagische Teleangiektasie (HHT)	 Disorder
+J63.2	133	Berylliose	Disorder
+J67.91	31740	Allergische Alveolitis durch organischen Staub mit akuter Exazerbation	Disorder
+J70.2	264978	Akute arzneimittelinduzierte interstitielle Lungenkrankheit	Disorder
+J70.3	264978	Chronische arzneimittelinduzierte interstitielle Lungenkrankheit	Disorder
+J80.01	70578	Mildes akutes Atemnotsyndrom des Erwachsenen	Disorder
+J80.02	70578	Moderates akutes Atemnotsyndrom des Erwachsenen	Disorder
+J80.03	70578	Schweres akutes Atemnotsyndrom des Erwachsenen	Disorder
+J84.91	182095	Interstitielle Lungenkrankheit mit akuter Exazerbation	Group of disorders
+K03.5	1077	Ankylose der Zähne	Disorder
+K07.8	2972	Syndrom des fehlenden Zahndurchbruchs mit Maxillahypoplasie und Genu valgum	Disorder
+K13.5	357154	Orale submuköse Fibrose	Disorder
+K60.3	228113	Analfistel	Disorder
+K62.7	70475	Radiogene Proktitis	Disorder
+K76.5	890	Stuart-Bras-Syndrom	Disorder
+K86.11	676	Genetisch bedingte Pankreatitis	Disorder
+L00.1	36236	SSS [Staphylococcal scalded skin]-Syndrom mit Befall von 30 % der Körperoberfläche und mehr	Disorder
+L10.1	79479	Hallopeau-Syndrom [Pemphigus vegetans]	Disorder
+L10.3	636955	Brasilianischer Pemphigus	Disorder
+L10.4	79480	Pemphigus erythematosus	Disorder
+L10.8	555905	IgA-Pemphigus	Disorder
+L12.1	46486	Benignes Schleimhautpemphigoid	Disorder
+L12.3	46487	Erworbene Epidermolysis bullosa	Disorder
+L13.1	48377	Dermatitis pustulosa subcornealis	Disorder
+L21.8	168606	Seborrhö-ähnliche Dermatitis mit psoriasiformen Läsionen	Disorder
+L44.0	2897	Devergie-Krankheit	Disorder
+L51.21	537	Lyell-Syndrom mit Befall von 30 % der Körperoberfläche und mehr	Subtype of disorder
+L56.3	97230	Sonnenlichtbedingte Urtikaria	Disorder
+L57.1	330064	Aktinisches Retikuloid	Disorder
+L60.5	662	Gelber-Nagel-Syndrom	Disorder
+L63.0	700	Alopecia cranialis totalis	Disorder
+L63.1	701	Alopecia universalis	Disorder
+L66.2	346	Acne decalvans	Disorder
+L66.3	345	Folliculitis abscedens et suffodiens	Disorder
+L68.1	2221	Erworbene lanuginöse Hypertrichose	Disorder
+L87.2	79148	Elastosis perforans serpiginosa	Disorder
+L90.1	228272	Anetodermie vom Typ Schweninger-Buzzi	Disorder
+L90.2	228272	Anetodermie vom Typ Jadassohn-Pellizzari	Disorder
+L90.3	658810	Atrophodermia idiopathica vom Typ Pasini-Pierini	Disorder
+L92.1	542592	Lipoidnekrobiose	Disorder
+L95.0	542643	Atrophie blanche	Disorder
+L95.1	90000	Bury-Krankheit	Disorder
+L98.2	3243	Akute febrile neutrophile Dermatose [Sweet-Syndrom]	Disorder
+L98.3	901	Eosinophile Zellulitis	Disorder
+M02.3	29207	Urethro-okulo-synoviales Syndrom [Reiter-Syndrom]	Disorder
+M05.0	47612	Felty-Syndrom	Disorder
+M06.1	829	Adulte Form der Still-Krankheit	Disorder
+M08.2	85414	Systemisch beginnende Form der juvenilen chronischen Arthritis	Disorder
+M08.4	85410	Juvenile chronische Arthritis, oligoartikuläre Form	Disorder
+M08.9	92	Juvenile idiopathische Arthritis	Group of disorders
+M11.1	1416	Familiäre CPPD [Kalziumpyrophosphat-Dihydrat]-Ablagerungskrankheit	Disorder
+M12.2	66627	Pigmentierte villonoduläre Synovialitis	Disorder
+M12.4	329967	Intermittierende Hydrarthrose	Disorder
+M12.80	2848	CACP [Kamptodaktylie, Arthropathie, Coxa vara, Perikarditis]-Syndrom	Disorder
+M25.94	85169	Familiäre digitale Arthropathie mit Brachydaktylie	Disorder
+M30.3	2331	Kawasaki-Syndrom [Mukokutanes Lymphknotensyndrom]	Disorder
+M31.4	3287	Aortenbogensyndrom	Disorder
+M31.6	397	Arteriitis temporalis	Disorder
+M31.7	727	Mikroskopische Panarteriitis	Disorder
+M31.8	36412	Hypokomplementämische urtikarielle Vaskulitis	Disorder
+M32.8	300345	Autosomal-rezessiver systemischer Lupus erythematodes	Disorder
+M34.1	220402	CREST-Syndrom [Spezialform der progressiven systemischen Sklerose mit Calcinosis cutis, Raynaud-Phänomen, Ösophagusdysfunktion, Sklerodaktylie und Teleangiektasie]	Subtype of disorder
+M34.2	90291	Arzneimittelinduzierte systemische Sklerose	Disorder
+M35.4	3165	Diffuse eosinophile Fasziitis	Disorder
+M35.6	33577	Christian-Weber-Krankheit	Disorder
+M43.86	1320	Idiopathische, nicht-psychogene Kamptokormie	Disorder
+M60.8	247724	Idiopathische eosinophile Myositis	Disorder
+M60.81	592	Makrophagische Myofasziitis in der Schulterregion	Disorder
+M60.88	48918	Fokale Myositis am Kopf	Disorder
+M61.1	337	Fibrodysplasia ossificans progressiva	Disorder
+M61.5	2762	Progressive ossäre Heteroplasie	Disorder
+M72.4	477742	Pseudosarkomatöse Fibromatose	Disorder
+M72.8	199260	Juveniles aponeurotisches Fibrom	Disorder
+M80.5	391330	X-chromosomale Osteoporose mit pathologischer Fraktur	Disorder
+M85.0	93277	Monostotische fibröse Dysplasie	Subtype of disorder
+M85.31	57196	Kondensierende Osteitis der medialen Klavikula	Disorder
+M85.4	83468	Solitäre Knochenzyste	Disorder
+M85.5	480553	Aneurysmatische Knochenzyste	Disorder
+M85.8	2485	Melorheostose	Disorder
+M85.81	178311	Isolierte sternokostoklavikuläre Hyperostose	Disorder
+M87.0	399307	Idiopathische avaskuläre Nekrose	Disorder
+M87.1	399158	Knochennekrose durch Arzneimittel	Group of disorders
+M87.2	399175	Traumatische avaskuläre Nekrose	Disorder
+M87.35	399180	Sekundäre nicht-traumatische avaskuläre Femurkopfnekrose	Disorder
+M87.85	86820	Familiäre avaskuläre Nekrose des Femurkopfes	Disorder
+M88.80	2801	Juveniles Paget-Syndrom, mehrere Lokalisationen	Disorder
+M89.48	1525	Kranio-Osteoarthropathie	Disorder
+M91.1	2380	Calvé-Legg-Perthes-Krankheit	Disorder
+M92.7	564003	Freiberg-Infraktion	Disorder
+M93.0	399329	Epiphysenlösung des Femurkopfes	Disorder
+M93.1	97332	Adulte Osteochondrose des Os lunatum der Hand	Disorder
+M93.2	251262	Familiäre Osteochondrosis dissecans	Disorder
+M94.1	728	Panchondritis	Disorder
+N02.8	34145	Berger-Krankheit	Disorder
+N05.5	54370	Membranoproliferative Glomerulonephritis	Disorder
+N07.1	2613	Salcedo-Syndrom	Disorder
+N07.8	329481	Lipoprotein-Glomerulopathie	Disorder
+N25.1	223	Arginin-Vasopressin-Resistenz	Disorder
+N48.30	140949	Priapismus vom Low-Flow-Typ	Disorder
+N80.4	137820	Endometriose des Septum rectovaginale	Disorder
+N80.5	137820	Darmendometriose	Disorder
+N80.6	137820	Endometriose in Hautnarbe	Disorder
+N98.1	64739	Hyperstimulation des Ovars	Disorder
+O01.0	254688	Klassische Blasenmole	Subtype of disorder
+O01.1	254693	Inkomplette Blasenmole	Subtype of disorder
+O14.0	275555	Leichte Präeklampsie	Disorder
+O14.1	275555	Hypertonie bei Schwangerschaft mit schwerer Albuminurie	Disorder
+O14.2	244242	Gravidität mit HELLP [Hemolysis, elevated liver function test, low platelet counts]-Syndrom	Disorder
+O26.4	63275	Betreuung der Schwangeren bei Herpes gestationis	Disorder
+O26.60	69665	Cholestase in der Schwangerschaft	Disorder
+O43.21	662721	Placenta increta	Disorder
+O69.4	662786	Blutung der Vasa praevia	Disorder
+O90.3	563	Kardiomyopathie im Wochenbett	Disorder
+P24.0	70588	Mekoniumaspiration	Disorder
+P27.1	70589	Bronchopulmonale Dysplasie	Disorder
+P35.0	290	Angeborene Pneumonie durch Röteln	Disorder
+P35.1	294	Angeborene Zytomegalie	Disorder
+P35.2	293	Angeborene Infektion durch Herpesviren	Disorder
+P35.4	448237	Angeborene Zika-Viruskrankheit	Disorder
+P57.8	529808	Chronische Bilirubin-Enzephalopathie	Disorder
+P72.8	329942	Transitorischer neonataler multipler Acyl-CoA-Dehydrogenase-Mangel	Disorder
+P74.5	3402	Neonatale transiente Tyrosinämie	Disorder
+P91.6	137577	HIE [Hypoxisch-ischämische Enzephalopathie] beim Neugeborenen	Disorder
+P94.0	391504	Transiente neonatale Myasthenia gravis	Subtype of disorder
+Q00.1	63260	Kraniorhachischisis	Disorder
+Q00.2	63259	Inienzephalie	Disorder
+Q01.0	1931	Frontale Enzephalozele	Subtype of disorder
+Q01.1	141118	Nasofrontale Enzephalozele	Subtype of disorder
+Q01.2	268823	Okzipitale Enzephalozele	Subtype of disorder
+Q04.4	3157	De-Morsier-Syndrom	Disorder
+Q11.0	519384	Cystic eyeball	Disorder
+Q18.4	141276	Kongenitale Makrostomie	Disorder
+Q20.0	3384	Angeborener Truncus arteriosus communis	Disorder
+Q20.2	3427	Double outlet left ventricle	Disorder
+Q21.4	2037	Agenesie des Septum aortopulmonale	Disorder
+Q22.5	1880	Ebstein-Anomalie	Disorder
+Q22.9	98721	Kongenitale Trikuspidalklappenanomalie	Group of disorders
+Q24.0	1666	Dextrokardie	Disorder
+Q24.1	95854	Isolierte Lävokardie	Disorder
+Q24.3	3190	Infundibuläre Pulmonalarterienstenose	Subtype of disorder
+Q24.6	60041	Angeborener Herzblock	Disorder
+Q26.2	99125	Kongenitale totale Lungenvenen Fehleinmündung	Disorder
+Q28.18	981	Agenesie der Arteria carotis interna	Disorder
+Q28.29	46724	Arteriovenöse Fehlbildung des Gehirns	Disorder
+Q31.5	2373	Angeborene Laryngomalazie	Disorder
+Q32.0	95430	Angeborene Tracheomalazie	Disorder
+Q35.3	99772	Gaumensegelspalte	Disorder
+Q35.7	99771	Mangelhafter Uvulaverschluss	Disorder
+Q36.0	199302	Beidseitige Lippenspalte	Disorder
+Q41.8	1201	Jejunoileale Atresie	Disorder
+Q44.2	30391	Angeborener undurchgängiger Gallengang	Disorder
+Q44.4	480501	Angeborene Choledochuszyste	Disorder
+Q45.1	675	Pancreas anulare	Disorder
+Q45.2	313906	Angeborene Pankreaszyste	Disorder
+Q51.0	180142	Angeborenes Fehlen des Uterus	Disorder
+Q51.5	180145	Agenesie der Cervix uteri	Disorder
+Q52.0	96269	Angeborenes Fehlen der Vagina	Disorder
+Q54.2	95706	Penoskrotale Hypospadie	Disorder
+Q54.3	95706	Perineale Hypospadie	Disorder
+Q55.5	49	Angeborenes Fehlen des Penis	Disorder
+Q60.1	1848	Angeborenes beidseitiges Fehlen der Niere	Subtype of disorder
+Q60.2	411709	Angeborenes Fehlen der Niere	Disorder
+Q60.3	97361	Angeborene einseitige Nierenatrophie	Subtype of disorder
+Q61.1	731	ARPKD [Autosomal-rezessive polyzystische Nierenkrankheit]	Disorder
+Q62.2	617	Angeborene Ureterdilatation	Disorder
+Q64.1	93930	Blasenekstrophie	Subtype of disorder
+Q71.0	294967	Agenesie der oberen Gliedmaßen	Disorder
+Q71.1	294975	Agenesie der oberen Gliedmaßen bei vorhandener Hand	Disorder
+Q71.2	294979	Angeborenes Fehlen von Unterarm und Hand	Disorder
+Q72.1	294977	Angeborenes Fehlen von Oberschenkel und Unterschenkel bei vorhandenem Fuß	Disorder
+Q72.2	294981	Agenesie von Unterschenkel und Fuß	Disorder
+Q72.5	93322	Longitudinaler Reduktionsdefekt der Tibia	Disorder
+Q72.6	93323	Fibulaagenesie	Disorder
+Q78.0	666	Osteogenesis Imperfecta	 Disorder
+Q78.3	1328	Camurati-Engelmann-Krankheit	Disorder
+Q78.6	321	Angeborene multiple Exostosen	Disorder
+Q79.2	660	Exomphalus	Disorder
+Q79.3	2368	Bauchwandspalte	Disorder
+Q79.4	2970	Bauchdeckenaplasiesyndrom	Disorder
+Q81.1	79404	Epidermolysis bullosa atrophicans generalisata gravis	Disorder
+Q82.3	464	Bloch-Siemens-Syndrom	Disorder
+Q83.0	180188	Amastie mit angeborenem Fehlen der Brustwarze	Disorder
+Q83.3	2456	Akzessorische Brustwarze	Disorder
+Q86.0	1915	Alkoholembryopathie	Disorder
+Q86.2	1914	Angeborenes Fehlbildungssyndrom durch Warfarin	Disorder
+Q86.80	3312	Thalidomid-Embryopathie	Disorder
+Q87.8	110	Bardet-Biedl-Syndrom	
+Q90.0	870	Trisomie 21, meiotische Non-disjunction	Disorder
+Q90.1	870	Trisomie 21, Mosaik, mitotische Non-disjunction	Disorder
+Q90.2	870	Down-Syndrom, Translokation	Disorder
+Q90.9	870	Down-Syndrom	Disorder
+Q91.0	3380	Trisomie 18, meiotische Non-disjunction	Disorder
+Q91.1	3380	Trisomie 18, Mosaik, mitotische Non-disjunction	Disorder
+Q91.2	3380	Trisomie 18, Translokation	Disorder
+Q96.1	99413	Karyotyp 46,X iso (Xq)	Subtype of disorder
+Q96.2	99413	Karyotyp 46,X mit Gonosomenanomalie, ausgenommen iso (Xq)	Subtype of disorder
+Q96.4	99228	Mosaik 45,X/Zelllinien mit Gonosomenanomalie	Subtype of disorder
+Q96.8	444048	46,XX-Ovarialdysgenesie-Kleinwuchs-Syndrom	Disorder
+Q98.5	8	47,XYY-Syndrom	Disorder

@@ -272,6 +272,6 @@ run_local_analysis <- function(input_dir = ".", output_dir = ".", tracer_file_na
 run_local_analysis(
   input_dir = file.path(getwd(), "input"),
   output_dir = file.path(getwd(), "output"),
-  tracer_file_name = "LABRADOR-ORPHA-Tracerdiagnosen_11_2025.csv",
+  tracer_file_name = "LABRADOR-ORPHA-Tracer_2025_11_24.csv",
   current_year = 2025
 )
