@@ -1,0 +1,240 @@
+﻿ICD10GM_CODE;ICD10GM_TEXT;OPRHACODE;ORPHACODE_TEXT;ORDO_LEVEL
+D51.1;Vitamin-B12-Mangelanämie durch selektive Vitamin-B12-Malabsorption mit Proteinurie;35858;Imerslund-Gräsbeck-Syndrom;Disorder
+D51.2;Transcobalamin-II-Mangel (-Anämie);859;Transcobalamin-II-Mangel;Disorder
+D56.2;Delta-Beta-Thalassämie;231237;Delta-Beta-Thalassämie;Disorder
+D59.10;Kälteagglutininkrankheit [CAD];56425;Kälteagglutininkrankheit;Disorder
+D59.5;Paroxysmale nächtliche Hämoglobinurie [Marchiafava-Micheli];447;Hämoglobinurie, nächtliche paroxysmale;Disorder
+D61.3;Idiopathische aplastische Anämie;88;Aplastische Anämie, idiopathische;Disorder
+D68.01;Erworbenes Willebrand-Jürgens-Syndrom;99147;Von-Willebrand-Syndrom, erworbenes;Disorder
+D68.23;Hereditärer Faktor-VII-Mangel;327;Faktor VII-Mangel, kongenitaler;Disorder
+D68.24;Hereditärer Faktor-X-Mangel;328;Faktor X-Mangel, kongenitaler;Disorder
+D68.25;Hereditärer Faktor-XII-Mangel;330;Faktor XII-Mangel, kongenitaler;Disorder
+D69.53;Heparin-induzierte Thrombozytopenie Typ II;3325;Heparin-induzierte Thrombozytopenie, klassische;Disorder
+D76.2;Hämophagozytäres Syndrom bei Infektionen;158048;Hämophagozytisches Syndrom, infektionsbedingtes;Disorder
+D80.7;Transitorische Hypogammaglobulinämie im Kindesalter;169139;Transiente Hypogammaglobulinämie der Kindheit;Disorder
+D81.0;Schwerer kombinierter Immundefekt [SCID] mit retikulärer Dysgenesie;33355;Retikuläre Dysgenesie;Disorder
+D81.3;Adenosindesaminase[ADA]-Mangel;277;Immundefekt, kombinierter schwerer, durch Adenosin-Desaminase-Mangel;Disorder
+D81.4;Nezelof-Syndrom;83471;T-Zell-Immundefekt mit Thymusaplasie;Disorder
+D81.5;Purinnukleosid-Phosphorylase[PNP]-Mangel;760;Purin-Nukleosid-Phosphorylase-Mangel;Disorder
+D81.7;Haupthistokompatibilitäts-Komplex-Klasse-II-Defekt [MHC-Klasse-II-Defekt];572;Immundefekt durch MHC Klasse II-Expressionsdefekt;Disorder
+D82.0;Wiskott-Aldrich-Syndrom;906;Wiskott-Aldrich-Syndrom;Disorder
+D86.0;Sarkoidose der Lunge;797;Sarkoidose;Disorder
+D86.1;Sarkoidose der Lymphknoten;797;Sarkoidose;Disorder
+D86.2;Sarkoidose der Lunge mit Sarkoidose der Lymphknoten;797;Sarkoidose;Disorder
+D86.3;Sarkoidose der Haut;797;Sarkoidose;Disorder
+E24.0;Hypophysäres Cushing-Syndrom;96253;Cushing-Krankheit;Disorder
+E24.1;Nelson-Tumor;199244;Nelson-Syndrom;Disorder
+E24.3;Ektopisches ACTH-Syndrom;99889;Cushing-Syndrom durch ektopische ACTH-Produktion;Disorder
+E27.2;Addison-Krise;95409;Nebenniereninsuffizienz, akute;Disorder
+E34.50;Partielles Androgenresistenz-Syndrom;90797;Androgen-Insensivitäts-Syndrom, partielles;Disorder
+E34.8;Sonstige näher bezeichnete endokrine Störungen;64;Alström-Syndrom; Disorder
+E70.0;Klassische Phenylketonurie;79254;Phenylketonurie, klassische;Subtype of disorder
+E71.2;Störung des Stoffwechsels verzweigter Aminosäuren, nicht näher bezeichnet;79197;Verzweigte Aminosäuren-Stoffwechselstörung;Group of disorders
+E79.1;Lesch-Nyhan-Syndrom;510;Lesch-Nyhan-Syndrom;Disorder
+E80.1;Porphyria cutanea tarda;101330;Porphyria cutanea tarda (PCT);Disorder
+E83.50;Kalziphylaxie;280062;Kalziphylaxie;Disorder
+E84.0;Zystische Fibrose mit Lungenmanifestationen;586;Zystische Fibrose;Disorder
+E84.1;Zystische Fibrose mit Darmmanifestationen;586;Zystische Fibrose;Disorder
+E84.80;Zystische Fibrose mit Lungen- und Darm-Manifestation;586;Zystische Fibrose;Disorder
+E84.87;Zystische Fibrose mit sonstigen multiplen Manifestationen;586;Zystische Fibrose;Disorder
+E84.88;Zystische Fibrose mit sonstigen Manifestationen;586;Zystische Fibrose;Disorder
+E84.9;Zystische Fibrose, nicht näher bezeichnet;586;Zystische Fibrose;Disorder
+E88.00;Alpha-1-Antitrypsinmangel;60;Alpha-1-Antitrypsin-Mangel;Disorder
+F80.3;Erworbene Aphasie mit Epilepsie [Landau-Kleffner-Syndrom];98818;Landau-Kleffner-Syndrom;Disorder
+F98.41;Stereotype Bewegungsstörungen: Mit Selbstverletzung;306765;Bewegungsstörung, stereotype;Group of disorders
+G00.1;Pneumokokkenmeningitis;55655;Pneumokokken-Meningitis;Disorder
+G04.1;Tropische spastische Paraplegie;289326;Tropische Spastische Paraparese;Disorder
+G12.0;Infantile spinale Muskelatrophie, Typ I [Typ Werdnig-Hoffmann];83330;Spinale Muskelatrophie, proximale, Typ 1;Subtype of disorder
+G12.1;Sonstige vererbte spinale Muskelatrophie;70;Spinale Muskelatrophie, proximale;Disorder
+G14;Postpolio-Syndrom;2942;Post-Poliomyelitis-Syndrom;Disorder
+G21.3;Postenzephalitisches Parkinson-Syndrom;97349;Postenzephalitisches Parkinson-Syndrom;Disorder
+G36.0;Neuromyelitis optica [Devic-Krankheit];71211;Neuromyelitis optica spectrum disorder;Disorder
+G37.1;Zentrale Demyelinisation des Corpus callosum;221074;Marchiafava-Bignami-Krankheit;Disorder
+G37.5;Konzentrische Sklerose [Bal-Krankheit];228165;Konzentrische Sklerose Baló;Disorder
+G51.2;Melkersson-Rosenthal-Syndrom;2483;Melkersson-Rosenthal-Syndrom;Disorder
+G51.3;Spasmus (hemi)facialis;221083;Hemifazialer Spasmus;Disorder
+G54.5;Neuralgische Amyotrophie;2901;Neuralgische Amyotrophie;Disorder
+G70.0;Myasthenia gravis;589;Myasthenia gravis;Disorder
+G83.5;Locked-in-Syndrom;2406;Locked-in-Syndrom;Disorder
+G90.5;Komplexes regionales Schmerzsyndrom, Typ I;99995;Komplexes regionales Schmerzsyndrom Typ 1;Subtype of disorder
+G90.6;Komplexes regionales Schmerzsyndrom, Typ II;99994;Komplexes regionales Schmerzsyndrom Typ 2;Subtype of disorder
+G90.7;Komplexes regionales Schmerzsyndrom, sonstiger und nicht näher bezeichneter Typ;83452;Komplexes regionales Schmerzsyndrom;Disorder
+H34.1;Verschluß der A. centralis retinae;648684;Zentralarterienverschluss der Netzhaut;Disorder
+H35.1;Retinopathia praematurorum;90050;Frühgeborenen-Retinopathie;Disorder
+I00;Rheumatisches Fieber ohne Angabe einer Herzbeteiligung;3099;Rheumatisches Fieber;Disorder
+I01.0;Akute rheumatische Perikarditis;3099;Rheumatisches Fieber;Disorder
+I01.2;Akute rheumatische Myokarditis;3099;Rheumatisches Fieber;Disorder
+I01.8;Sonstige akute rheumatische Herzkrankheit;3099;Rheumatisches Fieber;Disorder
+I01.9;Akute rheumatische Herzkrankheit, nicht näher bezeichnet;3099;Rheumatisches Fieber;Disorder
+I27.20;Pulmonale Hypertonie bei chronischer Thromboembolie;70591;Chronische thromboembolische pulmonale Hypertonie;Disorder
+I78.0;Hereditäre hämorrhagische Teleangiektasie;774;Hereditäre hämorrhagische Teleangiektasie; Disorder
+J63.2;Berylliose;133;Beryllium-Krankheit, chronische;Disorder
+J70.2;Akute arzneimittelinduzierte interstitielle Lungenkrankheiten;264978;Interstitielle Lungenkrankheit, Substanz- oder Strahleninduzierte;Disorder
+J70.3;Chronische arzneimittelinduzierte interstitielle Lungenkrankheiten;264978;Interstitielle Lungenkrankheit, Substanz- oder Strahleninduzierte;Disorder
+J80.01;Atemnotsyndrom des Erwachsenen [ARDS]: Mildes Atemnotsyndrom des Erwachsenen [ARDS];70578;Akutes Atemnotsyndrom des Erwachsenen;Disorder
+J80.02;Atemnotsyndrom des Erwachsenen [ARDS]: Moderates Atemnotsyndrom des Erwachsenen [ARDS];70578;Akutes Atemnotsyndrom des Erwachsenen;Disorder
+J80.03;Atemnotsyndrom des Erwachsenen [ARDS]: Schweres Atemnotsyndrom des Erwachsenen [ARDS];70578;Akutes Atemnotsyndrom des Erwachsenen;Disorder
+J84.91;Interstitielle Lungenkrankheit, nicht näher bezeichnet: Mit Angabe einer akuten Exazerbation;182095;Interstitielle Lungenkrankheit;Group of disorders
+K03.5;Ankylose der Zähne;1077;Dentale Ankylose;Disorder
+K13.5;Orale submuköse Fibrose;357154;Orale submuköse Fibrose;Disorder
+K60.3;Analfistel;228113;Analfistel;Disorder
+K62.7;Strahlenproktitis;70475;Radiogene Proktitis;Disorder
+K76.5;Venöse okklusive Leberkrankheit [Stuart-Bras-Syndrom];890;Lebervenen-Verschlusskrankheit;Disorder
+K86.11;Hereditäre Pankreatitis;676;Pankreatitis, chronische hereditäre, autosomal-dominante;Disorder
+L00.1;Staphylococcal scalded skin syndrome [SSS-Syndrom]: Befall von 30 % der Körperoberfläche und mehr;36236;Staphylococcal-Scalded-Skin-Syndrom;Disorder
+L10.1;Pemphigus vegetans;79479;Pemphigus vegetans;Disorder
+L10.3;Brasilianischer Pemphigus [fogo selvagem];636955;Pemphigus foliaceus, endemischer Typ;Disorder
+L10.4;Pemphigus erythematosus;79480;Pemphigus erythematosus;Disorder
+L10.8;Sonstige Pemphiguskrankheiten;555905;IgA-Pemphigus;Disorder
+L12.1;Vernarbendes Pemphigoid;46486;Schleimhautpemphigoid;Disorder
+L12.3;Erworbene Epidermolysis bullosa;46487;Epidermolysis bullosa, erworbene;Disorder
+L13.1;Pustulosis subcornealis [Sneddon-Wilkinson];48377;Dermatose, pustulöse subkorneale;Disorder
+L44.0;Pityriasis rubra pilaris;2897;Pityriasis rubra pilaris;Disorder
+L51.21;Toxische epidermale Nekrolyse [Lyell-Syndrom]: Befall von 30 % der Körperoberfläche und mehr;537;Toxische epidermale Nekrolyse;Subtype of disorder
+L56.3;Urticaria solaris;97230;Licht-Urtikaria;Disorder
+L57.1;Aktinisches Retikuloid;330064;Dermatitis, aktinische chronische;Disorder
+L60.5;Yellow-nail-Syndrom [Syndrom der gelben Nägel];662;Lymphödem mit gelben Nägeln;Disorder
+L63.0;Alopecia (cranialis) totalis;700;Alopecia totalis;Disorder
+L63.1;Alopecia universalis;701;Alopecia universalis;Disorder
+L66.2;Folliculitis decalvans;346;Folliculitis decalvans Quinquaud;Disorder
+L66.3;Folliculitis et Perifolliculitis capitis abscedens et suffodiens [Hoffmann];345;Dissezierende Zellulitis der Kopfhaut;Disorder
+L68.1;Hypertrichosis lanuginosa acquisita;2221;Hypertrichosis lanuginosa, erworbene;Disorder
+L87.2;Elastosis perforans serpiginosa;79148;Elastosis perforans serpiginosa;Disorder
+L90.1;Anetodermie, Typ Schweninger-Buzzi;228272;Anetodermie, primäre;Disorder
+L90.2;Anetodermie, Typ Jadassohn-Pellizzari;228272;Anetodermie, primäre;Disorder
+L90.3;Atrophodermia idiopathica, Typ Pasini-Pierini;658810;Atrophodermie von Pasini und Pierini;Disorder
+L92.1;Nekrobiosis lipoidica, anderenorts nicht klassifiziert;542592;Necrobiosis lipoidica;Disorder
+L95.0;Livedo-Vaskulitis;542643;Livedovaskulopathie;Disorder
+L95.1;Erythema elevatum et diutinum;90000;Erythema elevatum diutinum;Disorder
+L98.2;Akute febrile neutrophile Dermatose [Sweet-Syndrom];3243;Sweet-Syndrom;Disorder
+L98.3;Eosinophile Zellulitis [Wells-Syndrom];901;Wells-Syndrom;Disorder
+M02.3;Reiter-Krankheit;29207;Arthritis, reaktive;Disorder
+M05.0;Felty-Syndrom;47612;Felty-Syndrom;Disorder
+M06.1;Adulte Form der Still-Krankheit;829;Still-Syndrom des Erwachsenen;Disorder
+M08.2;Juvenile chronische Arthritis, systemisch beginnende Form;85414;Arthritis, idiopathische juvenile, systemische;Disorder
+M08.4;Juvenile chronische Arthritis, oligoartikuläre Form;85410;Arthritis, idiopathische juvenile, oligoartikuläre;Disorder
+M08.9;Juvenile Arthritis, nicht näher bezeichnet;92;Arthritis, idiopathische juvenile;Group of disorders
+M11.1;Familiäre Chondrokalzinose;1416;Familiäre Kalziumpyrophosphat-Ablagerung;Disorder
+M12.2;Villonoduläre Synovitis (pigmentiert);66627;Tenosynovialer Riesenzelltumor;Disorder
+M12.4;Hydrops intermittens;329967;Hydarthrose, intermittierende;Disorder
+M30.3;Mukokutanes Lymphknotensyndrom [Kawasaki-Krankheit];2331;Kawasaki-Krankheit;Disorder
+M31.4;Aortenbogen-Syndrom [Takayasu-Syndrom];3287;Takayasu-Arteriitis;Disorder
+M31.6;Sonstige Riesenzellarteriitis;397;Riesenzell-Arteriitis;Disorder
+M31.7;Mikroskopische Polyangiitis;727;Polyangiitis, mikroskopische;Disorder
+M34.1;CR(E)ST-Syndrom;220402;Systemische Sklerose, kutane limitierte;Subtype of disorder
+M34.2;Systemische Sklerose, durch Arzneimittel oder chemische Substanzen induziert;90291;Systemische Sklerodermie;Disorder
+M35.4;Eosinophile Fasziitis;3165;Fasziitis, eosinophile;Disorder
+M35.6;Rezidivierende Pannikulitis [Pfeifer-Weber-Christian-Krankheit];33577;Pannikulitis, noduläre nichteitrige;Disorder
+M61.1;Myositis ossificans progressiva;337;Fibrodysplasia ossificans progressiva;Disorder
+M61.5;Sonstige Ossifikation von Muskeln;2762;Heteroplasie, progressive ossäre;Disorder
+M72.4;Pseudosarkomatöse Fibromatose;477742;Noduläre Fasziitis;Disorder
+M80.5;Idiopathische Osteoporose mit pathologischer Fraktur;391330;Osteoporose mit Knochenbrüchen, X-chromosomal;Disorder
+M85.0;Fibröse Dysplasie (monostotisch);93277;Monostotische fibröse Dysplasie;Subtype of disorder
+M85.31;Ostitis condensans: Schulterregion [Klavikula, Skapula, Akromioklavikular-, Schulter-, Sternoklavikulargelenk];57196;Kondensierende Osteitis der medialen Klavikula;Disorder
+M85.4;Solitäre Knochenzyste;83468;Knochenzyste, solitäre;Disorder
+M85.5;Aneurysmatische Knochenzyste;480553;Aneurysmatische Knochenzyste;Disorder
+M87.0;Idiopathische aseptische Knochennekrose;399307;Avaskuläre Nekrose, idiopathische;Disorder
+M87.1;Knochennekrose durch Arzneimittel;399158;Osteonekrose;Group of disorders
+M87.2;Knochennekrose durch vorangegangenes Trauma;399175;Avaskuläre Nekrose, traumatische;Disorder
+M88;Osteodystrophia deformans sonstiger Knochen: Mehrere Lokalisationen;2801;Paget-Syndrom, juveniles;Disorder
+M91.1;Juvenile Osteochondrose des Femurkopfes [Perthes-Legg-Calv-Krankheit];2380;Legg-Calvé-Perthes-Krankheit;Disorder
+M92.7;Juvenile Osteochondrose des Metatarsus;564003;Osteochondrose des Mittelfußknochens;Disorder
+M93.0;Epiphyseolysis capitis femoris (nichttraumatisch);399329;Epiphysiolyse der Hüfte;Disorder
+M93.1;Kienböck-Krankheit bei Erwachsenen;97332;Kienböck-Krankheit;Disorder
+M93.2;Osteochondrosis dissecans;251262;Osteochondrosis dissecans, familiäre;Disorder
+M94.1;Panchondritis [Rezidivierende Polychondritis];728;Polychondritis, rezidivierende;Disorder
+N25.1;Renaler Diabetes insipidus;223;Arginin-Vasopressin-Resistenz;Disorder
+N48.30;Priapismus vom Low-Flow-Typ;140949;Priapismus, Low-Flow-Typ;Disorder
+N80.4;Endometriose des Septum rectovaginale und der Vagina;137820;Endometriose, extrapelvine;Disorder
+N80.5;Endometriose des Darmes;137820;Endometriose, extrapelvine;Disorder
+N80.6;Endometriose in Hautnarbe;137820;Endometriose, extrapelvine;Disorder
+N98.1;Hyperstimulation der Ovarien;64739;Ovarielles Überstimulationssyndrom;Disorder
+O01.0;Klassische Blasenmole;254688;Mole, hydatiforme komplette;Subtype of disorder
+O01.1;Partielle oder inkomplette Blasenmole;254693;Mole, hydatiforme partielle;Subtype of disorder
+O14.0;Mäßige Präeklampsie;275555;Präeklampsie;Disorder
+O14.1;Schwere Präeklampsie;275555;Präeklampsie;Disorder
+O14.2;HELLP-Syndrom;244242;HELLP-Syndrom;Disorder
+O26.4;Herpes gestationis;63275;Pemphigoid gestationis;Disorder
+O26.60;Schwangerschaftscholestase;69665;Schwangerschaftscholestase, intrahepatische;Disorder
+O43.21;Placenta increta oder percreta;662721;Placenta accreta-Spektrum-Störung;Disorder
+O69.4;Komplikationen bei Wehen und Entbindung durch Vasa praevia;662786;Vasa praevia;Disorder
+O90.3;Kardiomyopathie im Wochenbett;563;Kardiomyopathie, peripartale;Disorder
+P24.0;Mekoniumaspiration durch das Neugeborene;70588;Mekonium-Aspirationssyndrom;Disorder
+P27.1;Bronchopulmonale Dysplasie mit Ursprung in der Perinatalperiode;70589;Dysplasie, bronchopulmonale;Disorder
+P35.0;Rötelnembryopathie;290;Rötelnembryopathie;Disorder
+P35.1;Angeborene Zytomegalie;294;Fetales Zytomegalie-Syndrom;Disorder
+P35.2;Angeborene Infektion durch Herpesviren [Herpes simplex];293;Herpes simplex-Virusinfektion, kongenitale;Disorder
+P35.4;Angeborene Zika-Viruskrankheit;448237;Zikavirus-Infektion;Disorder
+P74.5;Transitorische Hypertyrosinämie beim Neugeborenen;3402;Transiente Tyrosinämie des Neugeborenen;Disorder
+P91.6;Hypoxisch-ischämische Enzephalopathie beim Neugeborenen [HIE];137577;Hypoxische und ischämische Hirnverletzung des Neugeborenen;Disorder
+P94.0;Transitorische Myasthenia gravis beim Neugeborenen;391504;Transiente neonatale Myasthenia gravis;Subtype of disorder
+Q00.1;Kraniorhachischisis;63260;Kraniorhachischisis;Disorder
+Q00.2;Inienzephalie;63259;Inienzephalie;Disorder
+Q01.0;Frontale Enzephalozele;1931;Enzephalozele, frontale;Subtype of disorder
+Q01.1;Nasofrontale Enzephalozele;141118;Enzephalozele, frontonasale;Subtype of disorder
+Q01.2;Okzipitale Enzephalozele;268823;Enzephalozele, okzipitale;Subtype of disorder
+Q04.4;Septooptische Dysplasie;3157;Septo-optische Dysplasie-Spektrum;Disorder
+Q11.0;Zystenauge [cystic eyeball];519384;Zystenauge, kongenitales;Disorder
+Q18.4;Makrostomie;141276;Gesichtsspalte, Tessier 7;Disorder
+Q20.0;Truncus arteriosus communis;3384;Truncus arteriosus communis;Disorder
+Q20.2;Linker Doppelausstromventrikel [Double outlet left ventricle];3427;Doppelausstromventrikel, linker;Disorder
+Q21.4;Aortopulmonaler Septumdefekt;2037;Aorto-pulmonale Fenster, kongenitales;Disorder
+Q22.5;Ebstein-Anomalie;1880;Ebstein-Anomalie der Trikuspidalklappe;Disorder
+Q24.0;Dextrokardie;1666;Dextrokardie;Disorder
+Q24.1;Lävokardie;95854;Laevokardie;Disorder
+Q24.3;Infundibuläre Pulmonalstenose;3190;Stenose, subpulmonale;Subtype of disorder
+Q24.6;Angeborener Herzblock;60041;Herzblock, kongenitaler;Disorder
+Q26.2;Totale Fehleinmündung der Lungenvenen;99125;Lungenvenenfehlmündung, kongenitale totale;Disorder
+Q31.5;Angeborene Laryngomalazie;2373;Laryngomalazie, kongenitale;Disorder
+Q32.0;Angeborene Tracheomalazie;95430;Tracheomalazie, kongenitale;Disorder
+Q35.3;Spalte des weichen Gaumens;99772;Velumspalte;Disorder
+Q35.7;Uvulaspalte;99771;Uvula bifida;Disorder
+Q36.0;Lippenspalte, beidseitig;199302;Lippenspalte, isolierte;Disorder
+Q41.8;Angeborene(s) Fehlen, Atresie und Stenose sonstiger näher bezeichneter Teile des Dünndarmes;1201;Dünndarmatresie;Disorder
+Q44.2;Atresie der Gallengänge;30391;Gallengangatresie, isolierte;Disorder
+Q44.4;Choledochuszyste;480501;Choledochuszyste;Disorder
+Q45.1;Pancreas anulare;675;Pankreas anularis;Disorder
+Q45.2;Angeborene Pankreaszyste;313906;Pankreaszysten, kongenitale;Disorder
+Q51.0;Agenesie und Aplasie des Uterus;180142;Uterusagenesie oder -aplasie;Disorder
+Q51.5;Agenesie und Aplasie der Cervix uteri;180145;Cervix uteri, Agenesie oder Aplasie;Disorder
+Q52.0;Angeborenes Fehlen der Vagina;96269;Vaginalagenesie, isolierte partielle;Disorder
+Q54.2;Penoskrotale Hypospadie;95706;Hypospadie, posteriore, nicht-syndromale;Disorder
+Q54.3;Perineale Hypospadie;95706;Hypospadie, posteriore, nicht-syndromale;Disorder
+Q55.5;Angeborenes Fehlen und Aplasie des Penis;49;Penisagenesie;Disorder
+Q60.1;Nierenagenesie, beidseitig;1848;Nierenagenesie, bilaterale;Subtype of disorder
+Q60.2;Nierenagenesie, nicht näher bezeichnet;411709;Nierenagenesie;Disorder
+Q60.3;Nierenhypoplasie, einseitig;97361;Nierenhypoplasie, unilaterale;Subtype of disorder
+Q61.1;Polyzystische Niere, autosomal-rezessiv;731;Nierenkrankheit, polyzystische, autosomal-rezessive;Disorder
+Q62.2;Angeborener Megaureter;617;Megaureter, kongenitaler primärer;Disorder
+Q64.1;Ekstrophie der Harnblase;93930;Klassische Blasenekstrophie;Subtype of disorder
+Q71.0;Angeborenes vollständiges Fehlen der oberen Extremität(en);294967;Isolierte Amelie der oberen Extremitäten;Disorder
+Q71.1;Angeborenes Fehlen des Ober- und Unterarmes bei vorhandener Hand;294975;Isoliertes Fehlen von Ober- und Unterarm bei vorhandener Hand;Disorder
+Q71.2;Angeborenes Fehlen sowohl des Unterarmes als auch der Hand;294979;Isoliertes angeborenes Fehlen von Unterarm und Hand;Disorder
+Q72.1;Angeborenes Fehlen des Ober- und Unterschenkels bei vorhandenem Fuß;294977;Isoliertes Fehlen von Ober- und Unterschenkel bei vorhandenem Fuß;Disorder
+Q72.2;Angeborenes Fehlen sowohl des Unterschenkels als auch des Fußes;294981;Isoliertes angeborenes Fehlen von Unterschenkel und Fuß;Disorder
+Q72.5;Longitudinaler Reduktionsdefekt der Tibia;93322;Tibia-Hemimelie, isolierte;Disorder
+Q72.6;Longitudinaler Reduktionsdefekt der Fibula;93323;Hemimelie, fibuläre isolierte;Disorder
+Q78.0;Osteogenesis imperfecta;666;Osteogenesis Imperfecta; Disorder
+Q78.3;Progrediente diaphysäre Dysplasie;1328;Camurati-Engelmann-Syndrom;Disorder
+Q78.6;Angeborene multiple Exostosen;321;Osteochondrome, multiple;Disorder
+Q79.2;Exomphalus;660;Omphalozele;Disorder
+Q79.3;Gastroschisis;2368;Gastroschisis;Disorder
+Q79.4;Bauchdeckenaplasie-Syndrom;2970;Prune-Belly-Syndrom;Disorder
+Q81.1;Epidermolysis bullosa atrophicans gravis;79404;Epidermolysis bullosa, junctionale, generalisierte schwere;Disorder
+Q82.3;Incontinentia pigmenti;464;Incontinentia pigmenti;Disorder
+Q83.0;Angeborenes Fehlen der Mamma verbunden mit fehlender Brustwarze;180188;Mammaaplasie/-hypoplasie, isolierte kongenitale;Disorder
+Q83.3;Akzessorische Brustwarze;2456;Mamillen, überzählige, familiäre Form;Disorder
+Q86.0;Alkohol-Embryopathie (mit Dysmorphien);1915;Fetales Alkoholsyndrom;Disorder
+Q86.2;Warfarin-Embryopathie;1914;Vitamin K-Antagonisten-Embryopathie;Disorder
+Q86.80;Thalidomid-Embryopathie;3312;Thalidomid-Embryopathie;Disorder
+Q90.0;Trisomie 21, meiotische Non-disjunction;870;Down-Syndrom;Disorder
+Q90.1;Trisomie 21, Mosaik (mitotische Non-disjunction);870;Down-Syndrom;Disorder
+Q90.2;Trisomie 21, Translokation;870;Down-Syndrom;Disorder
+Q90.9;Down-Syndrom, nicht näher bezeichnet;870;Down-Syndrom;Disorder
+Q91.0;Trisomie 18, meiotische Non-disjunction;3380;Trisomie 18;Disorder
+Q91.1;Trisomie 18, Mosaik (mitotische Non-disjunction);3380;Trisomie 18;Disorder
+Q91.2;Trisomie 18, Translokation;3380;Trisomie 18;Disorder
+Q96.1;Karyotyp 46,X iso (Xq);99413;Turner-Syndrom durch strukturelle Anomalien des X-Chromosoms;Subtype of disorder
+Q96.2;Karyotyp 46,X mit Gonosomenanomalie, ausgenommen iso (Xq);99413;Turner-Syndrom durch strukturelle Anomalien des X-Chromosoms;Subtype of disorder
+Q96.4;Mosaik, 45,X/sonstige Zellinie(n) mit Gonosomenanomalie;99228;Monosomie X-Mosaik;Subtype of disorder
+Q98.5;Karyotyp 47,XYY;8;47,XYY-Syndrom;Disorder

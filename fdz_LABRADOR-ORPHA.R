@@ -6,7 +6,7 @@
 ## - Public Use File, Datenmodell 3;                                     ##
 ##   source: https://zenodo.org/records/15057924                         ##
 ##   DM3 (AMBDIAG, KHDIAG, VERS, VERSQ)                                  ##
-## - Tracerdiagnosenliste "LABRADOR-ORPHA-Tracerdiagnosen_11_2025.csv"   ##
+## - Tracerdiagnosenliste "LABRADOR-ORPHA-Tracer_2026_01_02.csv"         ##
 ##   (Tabulator-getrennt, mit Header und 1 Zeile Metadaten)              ##
 ## OUTPUT:                                                               ##
 ## - Für jede Tracerdiagnose:                                            ##
@@ -34,9 +34,8 @@ install_and_load(required_packages)
 age_group_case <- function(year_col, current_year) {
   paste0(
     "CASE
-       WHEN (", current_year, " - ", year_col, ") BETWEEN 0 AND 19 THEN '0-19'
-       WHEN (", current_year, " - ", year_col, ") BETWEEN 20 AND 39 THEN '20-39'
-       WHEN (", current_year, " - ", year_col, ") BETWEEN 40 AND 59 THEN '40-59'
+       WHEN (", current_year, " - ", year_col, ") BETWEEN 0 AND 17 THEN '0-17'
+       WHEN (", current_year, " - ", year_col, ") BETWEEN 18 AND 59 THEN '18-59'
        WHEN (", current_year, " - ", year_col, ") >= 60 THEN '60+'
        ELSE 'Unknown' END"
   )
@@ -210,7 +209,7 @@ load_tracer_codes <- function(dir, file_name) {
   tracer_table <- read.csv(tracer_path,
                            header = TRUE,
                            skip = 1,
-                           sep = "\t",
+                           sep = ";",
                            dec = ",",
                            stringsAsFactors = FALSE)
 
@@ -254,8 +253,8 @@ run_local_analysis <- function(input_dir = ".", output_dir = ".", tracer_file_na
     }
 
     # Speichere Einzelergebnisse als CSV
-    write.csv(age_sex_dist, file = file.path(output_dir, sprintf("%s_age_sex_dist.csv", code)), row.names = FALSE)
-    write.csv(plz_dist, file = file.path(output_dir, sprintf("%s_plz_dist.csv", code)), row.names = FALSE)
+    #write.csv(age_sex_dist, file = file.path(output_dir, sprintf("%s_age_sex_dist.csv", code)), row.names = FALSE)
+    #write.csv(plz_dist, file = file.path(output_dir, sprintf("%s_plz_dist.csv", code)), row.names = FALSE)
   }
 
   # Speichere Gesamtergebnisse als CSV
@@ -272,6 +271,6 @@ run_local_analysis <- function(input_dir = ".", output_dir = ".", tracer_file_na
 run_local_analysis(
   input_dir = file.path(getwd(), "input"),
   output_dir = file.path(getwd(), "output"),
-  tracer_file_name = "LABRADOR-ORPHA-Tracer_2025_11_24.csv",
-  current_year = 2025
+  tracer_file_name = "LABRADOR-ORPHA-Tracer_2026_01_02.csv",
+  current_year = 2026
 )
