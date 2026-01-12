@@ -11,7 +11,7 @@
 ## OUTPUT:                                                               ##
 ## - Für jede Tracerdiagnose:                                            ##
 ##   - Alters- und Geschlechtsverteilung der betroffenen PSIDs (CSV)     ##
-##   - PLZ2-Verteilung der betroffenen PSIDs (CSV)                       ##
+##   - PLZ-Verteilung der betroffenen PSIDs (CSV)                        ##
 ###########################################################################
 
 
@@ -129,24 +129,40 @@ setup_local_database <- function(csv_dir = ".", overwrite = TRUE) {
 }
 
 # Funktion zur Erstellung der Basistabellen
+# ---------------------------------------------------------------
+# Bemerkungen: 
+# 1. Falls ein Patient in mehreren Jahren Diagnosestellungen mit einem RD-Code hat, 
+#    wird nur das früheste Jahr (BJAHR) genommen.
+# 2. Es werden nur gesicherte Diagnosen (DIAGSICH = 'G') aus AMBDIAG berücksichtigt.
 create_base_tables <- function(con, icd_rd_code, exact_match = TRUE) {
   # Tabelle löschen, falls bereits vorhanden
   execute_query(con, "DROP TABLE IF EXISTS TT_BASE_ICD;")
 
   if (exact_match) {
-    where_amb <- sprintf("WHERE ICDAMB_CODE = '%s'", icd_rd_code)
-    where_kh  <- sprintf("WHERE ICDKH_CODE = '%s'", icd_rd_code)
+    where_amb <- sprintf("ICDAMB_CODE = '%s'", icd_rd_code)
+    where_kh  <- sprintf("ICDKH_CODE = '%s'", icd_rd_code)
   } else {
-    where_amb <- sprintf("WHERE ICDAMB_CODE LIKE '%s%%'", icd_rd_code)
-    where_kh  <- sprintf("WHERE ICDKH_CODE LIKE '%s%%'", icd_rd_code)
+    where_amb <- sprintf("ICDAMB_CODE LIKE '%s%%'", icd_rd_code)
+    where_kh  <- sprintf("ICDKH_CODE LIKE '%s%%'", icd_rd_code)
   }
   
-  sql <- paste0(
-    "CREATE LOCAL TEMP TABLE TT_BASE_ICD AS
-     SELECT DISTINCT PSID, ICDAMB_CODE AS ICD_CODE, BJAHR FROM AMBDIAG ", where_amb, "
-     UNION ALL
-     SELECT DISTINCT PSID, ICDKH_CODE AS ICD_CODE, BJAHR FROM KHDIAG ", where_kh
-  )
+  sql <- paste0("
+    CREATE LOCAL TEMP TABLE TT_BASE_ICD AS
+    SELECT PSID, ICD_CODE, MIN(BJAHR) AS BJAHR
+    FROM (
+      SELECT DISTINCT PSID, ICDAMB_CODE AS ICD_CODE, BJAHR
+      FROM AMBDIAG 
+      WHERE ", where_amb, "
+        AND DIAGSICH = 'G'
+    
+      UNION ALL
+    
+      SELECT DISTINCT PSID, ICDKH_CODE AS ICD_CODE, BJAHR
+      FROM KHDIAG 
+      WHERE ", where_kh, "
+    )
+    GROUP BY PSID, ICD_CODE
+  ")
   
   execute_query(con, sql)
 }
@@ -183,20 +199,37 @@ create_age_sex_dist <- function(con) {
 }
 
 # Funktion: Erstellen der Tabelle für die 2-stellige PLZ der RD PSIDs
-create_plz_dist <- function(con) {
+create_plz2_dist <- function(con) {
   # Tabelle löschen, falls bereits vorhanden
-  execute_query(con, "DROP TABLE IF EXISTS RT_PLZ_DIST;")
+  execute_query(con, "DROP TABLE IF EXISTS RT_PLZ2_DIST;")
 
   execute_query(con, "
-    CREATE TABLE RT_PLZ_DIST AS
-    SELECT SUBSTRING(PLZ, 1, 2) AS PLZ2, COUNT(DISTINCT PSID) AS CNT_D_PSID
+    CREATE TABLE RT_PLZ2_DIST AS
+    SELECT SUBSTRING(PLZ, 1, 2) AS PLZ, COUNT(DISTINCT PSID) AS CNT_D_PSID
     FROM TT_DEMOGRAPHICS
     GROUP BY SUBSTRING(PLZ, 1, 2)
     ORDER BY CNT_D_PSID DESC;
   ")
 
   # Tabelle auslesen und zurückgeben
-  return(fetch_query(con, "SELECT * FROM RT_PLZ_DIST"))
+  return(fetch_query(con, "SELECT * FROM RT_PLZ2_DIST"))
+}
+
+# Funktion: Erstellen der Tabelle für die 1-stellige PLZ der RD PSIDs
+create_plz1_dist <- function(con) {
+  # Tabelle löschen, falls bereits vorhanden
+  execute_query(con, "DROP TABLE IF EXISTS RT_PLZ1_DIST;")
+
+  execute_query(con, "
+    CREATE TABLE RT_PLZ1_DIST AS
+    SELECT SUBSTRING(PLZ, 1, 1) AS PLZ, COUNT(DISTINCT PSID) AS CNT_D_PSID
+    FROM TT_DEMOGRAPHICS
+    GROUP BY SUBSTRING(PLZ, 1, 1)
+    ORDER BY CNT_D_PSID DESC;
+  ")
+
+  # Tabelle auslesen und zurückgeben
+  return(fetch_query(con, "SELECT * FROM RT_PLZ1_DIST"))
 }
 
 # Funktion: Lade Tracerdiagnosecodes aus CSV-Datei
@@ -240,7 +273,7 @@ run_local_analysis <- function(input_dir = ".", output_dir = ".", tracer_file_na
     create_base_tables(con, code, exact_match = TRUE)
     create_demographics_table(con, current_year)
     age_sex_dist <- create_age_sex_dist(con)
-    plz_dist <- create_plz_dist(con)
+    plz_dist <- create_plz1_dist(con)
 
     # Füge zu Gesamtergebnissen hinzu
     if (nrow(age_sex_dist) > 0) {
@@ -248,7 +281,7 @@ run_local_analysis <- function(input_dir = ".", output_dir = ".", tracer_file_na
     }
     if (nrow(plz_dist) > 0) {
       plz_dist$ICD_CODE <- code
-      plz_dist <- plz_dist[, c("ICD_CODE", "PLZ2", "CNT_D_PSID")]
+      plz_dist <- plz_dist[, c("ICD_CODE", "PLZ", "CNT_D_PSID")]
       all_plz_dist <- rbind(all_plz_dist, plz_dist)
     }
 
