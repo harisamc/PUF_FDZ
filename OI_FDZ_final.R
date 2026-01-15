@@ -1,4 +1,4 @@
-# Best version yet; use ZUSATZ CODE in the next one; kreuz/stern as well. 
+# Best version yet; 
 # Load libraries
 
 
@@ -211,7 +211,7 @@ create_demographics_table_remaining = function(con) {
       GROUP BY PSID
     ),
 
-    -- assign gender label 
+    -- assign sex label 
     final_sex AS (
       SELECT
         PSID,
