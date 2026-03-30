@@ -48,76 +48,82 @@ create_base_tables = function(con, icd_rd_code, exact_match = TRUE) {
     CREATE LOCAL TEMP TABLE TT_BASE_ICD AS
     SELECT 
       PSID,
+      VSID,
       ICD_CODE,
       MIN(BJAHR) AS BJAHR
     FROM (
       SELECT 
-        PSID, 
+        PSID,
+        VSID,
         ICDAMB_CODE AS ICD_CODE, 
         BJAHR
       FROM AMBDIAG ", where_amb, "
-        AND DIAGSICH = 'G' --new
-
+        AND DIAGSICH = 'G'
+ 
       UNION ALL
-
+ 
       SELECT 
-        PSID, 
+        PSID,
+        VSID,
         ICDKH_CODE AS ICD_CODE, 
         BJAHR
       FROM KHDIAG ", where_kh, "
     )
-    GROUP BY PSID, ICD_CODE
+    GROUP BY PSID, VSID, ICD_CODE
   ")
   
   dbExecute(con, sql)
 }
 
-
+# VSID added to base_vers and sex CTEs; joins on PSID + VSID
 
 create_demographics_table = function(con) {
   
   sql <- "
     CREATE LOCAL TEMP TABLE TT_DEMOGRAPHICS_RD_UNIQUE AS
-
+ 
     WITH base_vers AS (
-      SELECT PSID, 
-        MIN(GEBJAHR) AS GEBJAHR, -- select minimum GEBJAHR 
-        MIN(PLZ) AS PLZ -- remove min?
+      SELECT PSID,
+        VSID,
+        MIN(GEBJAHR) AS GEBJAHR,
+        MIN(PLZ) AS PLZ
       FROM VERS
-      GROUP BY PSID
+      GROUP BY PSID, VSID
     ),
-
-    -- Clean and classify sex 
+ 
     cleaned_sex AS (
       SELECT 
         PSID,
-        CASE -- select sex entries and name VALID_SEX; take value 1 or value 2
+        VSID,
+        CASE
           WHEN GESCHLECHT IN (1,2) THEN GESCHLECHT
           ELSE NULL 
         END AS VALID_SEX
       FROM VERSQ
     ),
-
+ 
     sex_counts AS (
       SELECT
-        PSID, -- count the number of sexes specific for a psid NUM_VALID
-        COUNT(DISTINCT VALID_SEX) AS NUM_VALID, -- a valid nr is 1 sex!
-        MIN(VALID_SEX) AS VALID_SEX_VALUE -- take only psids for gender assignment that have
-      FROM cleaned_sex -- one value, as indicated from min(VALID_SEX)
-      GROUP BY PSID
+        PSID,
+        VSID,
+        COUNT(DISTINCT VALID_SEX) AS NUM_VALID,
+        MIN(VALID_SEX) AS VALID_SEX_VALUE
+      FROM cleaned_sex
+      GROUP BY PSID, VSID
     ),
-
+ 
     base_sex AS (
       SELECT
         PSID,
+        VSID,
         CASE 
-          WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 1 THEN 'Female' -- if psid has one 1 value, and its a 1
-          WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 2 THEN 'Male' -- same
-          ELSE 'Unknown' -- place remaining
+          WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 1 THEN 'Female'
+          WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 2 THEN 'Male'
+          ELSE 'Unknown'
         END AS GESCHLECHT_LABEL
       FROM sex_counts
     )
-
+ 
     SELECT
       i.PSID,
       i.ICD_CODE,
@@ -132,47 +138,53 @@ create_demographics_table = function(con) {
       END AS AGE_GROUP,
       s.GESCHLECHT_LABEL
     FROM TT_BASE_ICD i
-    JOIN base_vers v ON i.PSID = v.PSID
-    LEFT JOIN base_sex s ON i.PSID = s.PSID
+    JOIN base_vers v ON i.PSID = v.PSID AND i.VSID = v.VSID
+    LEFT JOIN base_sex s ON i.PSID = s.PSID AND i.VSID = s.VSID
     WHERE s.GESCHLECHT_LABEL IN ('Male', 'Female')
     "
   
   dbExecute(con, sql)
 }
 
-
-
+# Exclusion join stays on PSID only (to exclude anyone ever with Q780)
+# VSID added to SELECT for downstream joins
 create_base_population_remaining = function(con) {
   
   dbExecute(con, "
     CREATE LOCAL TEMP TABLE TT_REMAINING_POP AS
     SELECT 
       PSID,
+      VSID,
       ICD_CODE,
       MIN(BJAHR) AS BJAHR
     FROM (
       SELECT 
         a.PSID,
+        a.VSID,
         a.ICDAMB_CODE AS ICD_CODE,
         a.BJAHR
       FROM AMBDIAG a
       LEFT JOIN TT_BASE_ICD r ON a.PSID = r.PSID
       WHERE r.PSID IS NULL
-        AND a.DIAGSICH = 'G' --new
-
+        AND a.DIAGSICH = 'G'
+ 
       UNION ALL
-
+ 
       SELECT 
         k.PSID,
+        k.VSID,
         k.ICDKH_CODE AS ICD_CODE,
         k.BJAHR
       FROM KHDIAG k
       LEFT JOIN TT_BASE_ICD r ON k.PSID = r.PSID
       WHERE r.PSID IS NULL
     )
-    GROUP BY PSID, ICD_CODE
+    GROUP BY PSID, VSID, ICD_CODE
   ")
 }
+
+
+# VSID added to vers_clean and sex CTEs; joins on PSID + VSID
 
 
 
@@ -180,126 +192,129 @@ create_demographics_table_remaining = function(con) {
   
   sql <- "
     CREATE LOCAL TEMP TABLE TT_DEMOGRAPHICS_REMAIN AS
-
+ 
     WITH vers_clean AS (
       SELECT 
         PSID,
+        VSID,
         MIN(GEBJAHR) AS GEBJAHR,
         MIN(PLZ) AS PLZ
       FROM VERS
-      GROUP BY PSID
+      GROUP BY PSID, VSID
     ),
-
-   -- clean sex codes (only keep 1 or 2, else NULL) 
+ 
     cleaned_sex AS (
       SELECT 
         PSID,
+        VSID,
         CASE 
           WHEN GESCHLECHT IN (1,2) THEN GESCHLECHT
           ELSE NULL
         END AS valid_sex
       FROM VERSQ
     ),
-
-    -- summarize per PSID 
+ 
     sex_counts AS (
       SELECT
         PSID,
+        VSID,
         COUNT(DISTINCT valid_sex) AS num_valid,
         MIN(valid_sex) AS valid_sex_value
       FROM cleaned_sex
-      GROUP BY PSID
+      GROUP BY PSID, VSID
     ),
-
-    -- assign sex label 
+ 
     final_sex AS (
       SELECT
         PSID,
+        VSID,
         CASE
           WHEN num_valid = 1 AND valid_sex_value = 1 THEN 'Female'
           WHEN num_valid = 1 AND valid_sex_value = 2 THEN 'Male'
-         -- ELSE 'Unknown'
         END AS geschlecht_label
       FROM sex_counts
     )
-
-  -- final demographics table 
+ 
     SELECT
       b.PSID,
       b.ICD_CODE,
       b.BJAHR,
       v.PLZ,
       (b.BJAHR - v.GEBJAHR) AS ALTER,
-
+ 
       CASE 
         WHEN (b.BJAHR - v.GEBJAHR) BETWEEN 0 AND 18 THEN '0-18'
         WHEN (b.BJAHR - v.GEBJAHR) BETWEEN 19 AND 49 THEN '19-49'
         WHEN (b.BJAHR - v.GEBJAHR) >= 50 THEN '50+'
-        -- ELSE 'Unknown'
       END AS AGE_GROUP,
-
+ 
       s.geschlecht_label AS GESCHLECHT_LABEL
-
+ 
     FROM TT_REMAINING_POP b
-    JOIN vers_clean v ON b.PSID = v.PSID
-    LEFT JOIN final_sex s ON b.PSID = s.PSID
-
+    JOIN vers_clean v ON b.PSID = v.PSID AND b.VSID = v.VSID
+    LEFT JOIN final_sex s ON b.PSID = s.PSID AND b.VSID = s.VSID
   ";
   
   dbExecute(con, sql)
 }
 
+# No VSID changes needed - queries from already-cleaned TT tables, counts are COUNT(DISTINCT PSID)
+
 create_age_sex_distribution = function(con) {
   
   sql <- "
     CREATE TABLE RT_RD_NON_RD_AGE_SEX_DIST AS
-
-  -- RD PATIENTS aggregated over all years
+ 
+    -- RD PATIENTS aggregated over all years
     SELECT 
       ICD_CODE,
       AGE_GROUP AS ALTERSGRUPPE,
       GESCHLECHT_LABEL,
       SUM(CAST(CNT_D_PSID AS INTEGER)) AS CNT_D_PSID
     FROM (
-    SELECT 
-      ICD_CODE,
-      BJAHR,
-      AGE_GROUP,
-      GESCHLECHT_LABEL,
-      COUNT(DISTINCT PSID) AS CNT_D_PSID
-    FROM TT_DEMOGRAPHICS_RD_UNIQUE
-    WHERE AGE_GROUP IS NOT NULL
-      AND GESCHLECHT_LABEL IS NOT NULL -- think about doing the filtering in the demog table
-    GROUP BY ICD_CODE, BJAHR, AGE_GROUP, GESCHLECHT_LABEL
-  )
-  GROUP BY ICD_CODE, AGE_GROUP, GESCHLECHT_LABEL
-
-  UNION ALL
-
-  -- NON-RD PATIENTS aggregated over all years
-  SELECT
-    ICD_CODE,
-    AGE_GROUP AS ALTERSGRUPPE,
-    GESCHLECHT_LABEL,
-    SUM(CAST(CNT_D_PSID AS INTEGER)) AS CNT_D_PSID
-  FROM (
+      SELECT 
+        ICD_CODE,
+        BJAHR,
+        AGE_GROUP,
+        GESCHLECHT_LABEL,
+        COUNT(DISTINCT PSID) AS CNT_D_PSID
+      FROM TT_DEMOGRAPHICS_RD_UNIQUE
+      WHERE AGE_GROUP IS NOT NULL
+        AND GESCHLECHT_LABEL IS NOT NULL
+      GROUP BY ICD_CODE, BJAHR, AGE_GROUP, GESCHLECHT_LABEL
+    )
+    GROUP BY ICD_CODE, AGE_GROUP, GESCHLECHT_LABEL
+ 
+    UNION ALL
+ 
+    -- NON-RD PATIENTS aggregated over all years
     SELECT
-      '!Q780' AS ICD_CODE,
-      BJAHR,
-      AGE_GROUP,
+      ICD_CODE,
+      AGE_GROUP AS ALTERSGRUPPE,
       GESCHLECHT_LABEL,
-      COUNT(DISTINCT PSID) AS CNT_D_PSID
-    FROM TT_DEMOGRAPHICS_REMAIN
-    WHERE AGE_GROUP IS NOT NULL
-      AND GESCHLECHT_LABEL IS NOT NULL
-    GROUP BY BJAHR, AGE_GROUP, GESCHLECHT_LABEL
-  )
-  GROUP BY ICD_CODE, AGE_GROUP, GESCHLECHT_LABEL;
-
+      SUM(CAST(CNT_D_PSID AS INTEGER)) AS CNT_D_PSID
+    FROM (
+      SELECT
+        '!Q780' AS ICD_CODE,
+        BJAHR,
+        AGE_GROUP,
+        GESCHLECHT_LABEL,
+        COUNT(DISTINCT PSID) AS CNT_D_PSID
+      FROM TT_DEMOGRAPHICS_REMAIN
+      WHERE AGE_GROUP IS NOT NULL
+        AND GESCHLECHT_LABEL IS NOT NULL
+      GROUP BY BJAHR, AGE_GROUP, GESCHLECHT_LABEL
+    )
+    GROUP BY ICD_CODE, AGE_GROUP, GESCHLECHT_LABEL;
   "
   
   dbExecute(con, sql)
 }
+
+
+# VSID added to TT_SPECIFIC_ICD SELECT
+# Joins to TT_BASE_ICD on PSID + VSID + BJAHR
+# VSID added to vers_clean and sex CTEs in TT_SPECIFIC_ICD_AGE_SEX; joined on PSID + VSID
 
 
 create_icd_occurrence_table_rd = function(con, icd_list) {
@@ -324,24 +339,26 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
     -- EXACT AMB
     SELECT DISTINCT
       a.PSID,
+      a.VSID,
       a.ICDAMB_CODE AS ICD_CODE,
       a.ICDAMB_CODE AS ICD_GROUP,
       a.BJAHR
     FROM AMBDIAG a
-    INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID
+    INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID AND a.VSID = b.VSID AND a.BJAHR = b.BJAHR
     WHERE ", exact_clause_amb, "
-      AND a.DIAGSICH = 'G' --new
+      AND a.DIAGSICH = 'G'
     
     UNION ALL
     
     -- EXACT KH
     SELECT DISTINCT
       a.PSID,
+      a.VSID,
       a.ICDKH_CODE AS ICD_CODE,
       a.ICDKH_CODE AS ICD_GROUP,
       a.BJAHR
     FROM KHDIAG a
-    INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID
+    INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID AND a.VSID = b.VSID AND a.BJAHR = b.BJAHR
     WHERE ", exact_clause_kh, "
     
     UNION ALL
@@ -349,11 +366,12 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
     -- PREFIX AMB
     SELECT DISTINCT
       a.PSID,
+      a.VSID,
       a.ICDAMB_CODE AS ICD_CODE,
       SUBSTRING(a.ICDAMB_CODE,1,3) AS ICD_GROUP,
       a.BJAHR
     FROM AMBDIAG a
-    INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID
+    INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID AND a.VSID = b.VSID AND a.BJAHR = b.BJAHR
     WHERE ", prefix_clause_amb, "
       AND a.DIAGSICH = 'G'
     
@@ -362,51 +380,56 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
     -- PREFIX KH
     SELECT DISTINCT
       a.PSID,
+      a.VSID,
       a.ICDKH_CODE AS ICD_CODE,
       SUBSTRING(a.ICDKH_CODE,1,3) AS ICD_GROUP,
       a.BJAHR
     FROM KHDIAG a
-    INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID
+    INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID AND a.VSID = b.VSID AND a.BJAHR = b.BJAHR
     WHERE ", prefix_clause_kh, ";
   ")
   dbExecute(con, sql)
   
   # -----------------------------------
-  # 2. Compute age + cleaned sex (same logic as REMAIN)
+  # 2. Compute age + cleaned sex; VERS and VERSQ joined on PSID + VSID
   # -----------------------------------
   dbExecute(con, "
     CREATE LOCAL TEMP TABLE TT_SPECIFIC_ICD_AGE_SEX AS
     WITH vers_clean AS (
       SELECT 
-          PSID,
-          MIN(GEBJAHR) AS GEBJAHR
+        PSID,
+        VSID,
+        MIN(GEBJAHR) AS GEBJAHR
       FROM VERS
-      GROUP BY PSID
+      GROUP BY PSID, VSID
     ),
     cleaned_sex AS (
       SELECT 
-          PSID,
-          CASE 
-              WHEN GESCHLECHT IN (1,2) THEN GESCHLECHT
-              ELSE NULL
-          END AS VALID_SEX
+        PSID,
+        VSID,
+        CASE 
+          WHEN GESCHLECHT IN (1,2) THEN GESCHLECHT
+          ELSE NULL
+        END AS VALID_SEX
       FROM VERSQ
     ),
     sex_counts AS (
       SELECT
-          PSID,
-          COUNT(DISTINCT VALID_SEX) AS NUM_VALID,
-          MIN(VALID_SEX) AS VALID_SEX_VALUE
+        PSID,
+        VSID,
+        COUNT(DISTINCT VALID_SEX) AS NUM_VALID,
+        MIN(VALID_SEX) AS VALID_SEX_VALUE
       FROM cleaned_sex
-      GROUP BY PSID
+      GROUP BY PSID, VSID
     ),
     base_sex AS (
       SELECT
-          PSID,
-          CASE 
-              WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 1 THEN 'Female'
-              WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 2 THEN 'Male'
-          END AS GESCHLECHT_LABEL
+        PSID,
+        VSID,
+        CASE 
+          WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 1 THEN 'Female'
+          WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 2 THEN 'Male'
+        END AS GESCHLECHT_LABEL
       FROM sex_counts
     )
     SELECT
@@ -416,25 +439,25 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
       s.GESCHLECHT_LABEL,
       (i.BJAHR - v.GEBJAHR) AS ALTER,
       CASE
-          WHEN (i.BJAHR - v.GEBJAHR) BETWEEN 0 AND 18 THEN '0-18'
-          WHEN (i.BJAHR - v.GEBJAHR) BETWEEN 19 AND 49 THEN '19-49'
-          WHEN (i.BJAHR - v.GEBJAHR) >= 50 THEN '50+'
+        WHEN (i.BJAHR - v.GEBJAHR) BETWEEN 0 AND 18 THEN '0-18'
+        WHEN (i.BJAHR - v.GEBJAHR) BETWEEN 19 AND 49 THEN '19-49'
+        WHEN (i.BJAHR - v.GEBJAHR) >= 50 THEN '50+'
       END AS AGE_GROUP
     FROM TT_SPECIFIC_ICD i
-    JOIN vers_clean v ON i.PSID = v.PSID
-    LEFT JOIN base_sex s ON i.PSID = s.PSID
+    JOIN vers_clean v ON i.PSID = v.PSID AND i.VSID = v.VSID
+    LEFT JOIN base_sex s ON i.PSID = s.PSID AND i.VSID = s.VSID
     WHERE 
-        s.GESCHLECHT_LABEL IS NOT NULL
-        AND (i.BJAHR - v.GEBJAHR) IS NOT NULL
-        AND (
-              (i.BJAHR - v.GEBJAHR) BETWEEN 0 AND 18 OR
-              (i.BJAHR - v.GEBJAHR) BETWEEN 19 AND 49 OR
-              (i.BJAHR - v.GEBJAHR) >= 50
-        );
+      s.GESCHLECHT_LABEL IS NOT NULL
+      AND (i.BJAHR - v.GEBJAHR) IS NOT NULL
+      AND (
+            (i.BJAHR - v.GEBJAHR) BETWEEN 0 AND 18 OR
+            (i.BJAHR - v.GEBJAHR) BETWEEN 19 AND 49 OR
+            (i.BJAHR - v.GEBJAHR) >= 50
+      );
   ")
   
   # -----------------------------------
-  # 3. Final aggregated ICD x Sex x Age table
+  # 3. Final aggregated ICD x Sex x Age table - no changes needed
   # -----------------------------------
   dbExecute(con, "
     CREATE TABLE RT_SPECIFIC_ICD_AGE_SEX_DIST AS
@@ -444,20 +467,22 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
       AGE_GROUP,
       SUM(CNT_D_PSID) AS CNT_D_PSID
     FROM (
-        SELECT 
-          ICD_GROUP,
-          BJAHR,
-          GESCHLECHT_LABEL,
-          AGE_GROUP,
-          COUNT(DISTINCT PSID) AS CNT_D_PSID
-        FROM TT_SPECIFIC_ICD_AGE_SEX
-        GROUP BY ICD_GROUP, BJAHR, GESCHLECHT_LABEL, AGE_GROUP
+      SELECT 
+        ICD_GROUP,
+        BJAHR,
+        GESCHLECHT_LABEL,
+        AGE_GROUP,
+        COUNT(DISTINCT PSID) AS CNT_D_PSID
+      FROM TT_SPECIFIC_ICD_AGE_SEX
+      GROUP BY ICD_GROUP, BJAHR, GESCHLECHT_LABEL, AGE_GROUP
     )
     GROUP BY ICD_GROUP, GESCHLECHT_LABEL, AGE_GROUP
     ORDER BY ICD_GROUP, GESCHLECHT_LABEL, AGE_GROUP;
   ")
 }
 
+# VSID added to TT_SPECIFIC_ICD_REMAIN SELECT (already in TT_REMAINING_POP)
+# VERS and VERSQ joined on PSID + VSID in TT_SPECIFIC_ICD_REMAIN_AGE_SEX
 
 create_icd_occurrence_table_remaining = function(con, icd_list) {
   
@@ -484,6 +509,7 @@ create_icd_occurrence_table_remaining = function(con, icd_list) {
     -- Exact matches
     SELECT DISTINCT
       PSID,
+      VSID,
       ICD_CODE,
       ICD_CODE AS ICD_GROUP,
       BJAHR
@@ -495,6 +521,7 @@ create_icd_occurrence_table_remaining = function(con, icd_list) {
     -- Prefix matches
     SELECT DISTINCT
       PSID,
+      VSID,
       ICD_CODE,
       SUBSTRING(ICD_CODE, 1, 3) AS ICD_GROUP,
       BJAHR
@@ -504,41 +531,45 @@ create_icd_occurrence_table_remaining = function(con, icd_list) {
   dbExecute(con, sql)
   
   # --------------------------------------------------------------
-  # 2. Compute age per event year using VERS (GEBJAHR) + VERSQ (SEX)
+  # 2. Compute age per event year; VERS and VERSQ joined on PSID + VSID
   # --------------------------------------------------------------
   dbExecute(con, "
     CREATE LOCAL TEMP TABLE TT_SPECIFIC_ICD_REMAIN_AGE_SEX AS
     WITH vers_clean AS (
       SELECT 
-          PSID,
-          MIN(GEBJAHR) AS GEBJAHR
+        PSID,
+        VSID,
+        MIN(GEBJAHR) AS GEBJAHR
       FROM VERS
-      GROUP BY PSID
+      GROUP BY PSID, VSID
     ),
     cleaned_sex AS (
       SELECT 
-          PSID,
-          CASE 
-              WHEN GESCHLECHT IN (1,2) THEN GESCHLECHT
-              ELSE NULL
-          END AS VALID_SEX
+        PSID,
+        VSID,
+        CASE 
+          WHEN GESCHLECHT IN (1,2) THEN GESCHLECHT
+          ELSE NULL
+        END AS VALID_SEX
       FROM VERSQ
     ),
     sex_counts AS (
       SELECT
-          PSID,
-          COUNT(DISTINCT VALID_SEX) AS NUM_VALID,
-          MIN(VALID_SEX) AS VALID_SEX_VALUE
+        PSID,
+        VSID,
+        COUNT(DISTINCT VALID_SEX) AS NUM_VALID,
+        MIN(VALID_SEX) AS VALID_SEX_VALUE
       FROM cleaned_sex
-      GROUP BY PSID
+      GROUP BY PSID, VSID
     ),
     base_sex AS (
       SELECT
-          PSID,
-          CASE 
-              WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 1 THEN 'Female'
-              WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 2 THEN 'Male'
-          END AS GESCHLECHT_LABEL
+        PSID,
+        VSID,
+        CASE 
+          WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 1 THEN 'Female'
+          WHEN NUM_VALID = 1 AND VALID_SEX_VALUE = 2 THEN 'Male'
+        END AS GESCHLECHT_LABEL
       FROM sex_counts
     )
     SELECT
@@ -548,13 +579,13 @@ create_icd_occurrence_table_remaining = function(con, icd_list) {
       s.GESCHLECHT_LABEL,
       (i.BJAHR - v.GEBJAHR) AS ALTER,
       CASE
-          WHEN (i.BJAHR - v.GEBJAHR) BETWEEN 0 AND 18 THEN '0-18'
-          WHEN (i.BJAHR - v.GEBJAHR) BETWEEN 19 AND 49 THEN '19-49'
-          WHEN (i.BJAHR - v.GEBJAHR) >= 50 THEN '50+'
+        WHEN (i.BJAHR - v.GEBJAHR) BETWEEN 0 AND 18 THEN '0-18'
+        WHEN (i.BJAHR - v.GEBJAHR) BETWEEN 19 AND 49 THEN '19-49'
+        WHEN (i.BJAHR - v.GEBJAHR) >= 50 THEN '50+'
       END AS AGE_GROUP
     FROM TT_SPECIFIC_ICD_REMAIN i
-    JOIN vers_clean v ON i.PSID = v.PSID
-    LEFT JOIN base_sex s ON i.PSID = s.PSID
+    JOIN vers_clean v ON i.PSID = v.PSID AND i.VSID = v.VSID
+    LEFT JOIN base_sex s ON i.PSID = s.PSID AND i.VSID = s.VSID
     WHERE s.GESCHLECHT_LABEL IS NOT NULL
       AND (i.BJAHR - v.GEBJAHR) IS NOT NULL
       AND (
@@ -565,32 +596,30 @@ create_icd_occurrence_table_remaining = function(con, icd_list) {
   ")
   
   # -------------------------------
-  # 3. Aggregate final table
+  # 3. Aggregate final table - no changes needed
   # -------------------------------
   dbExecute(con, "
     CREATE TABLE RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN AS
-
     SELECT
       ICD_GROUP,
       GESCHLECHT_LABEL,
       AGE_GROUP,
       SUM(CNT_D_PSID) AS CNT_D_PSID
     FROM (
-        SELECT 
-          ICD_GROUP,
-          BJAHR,
-          GESCHLECHT_LABEL,
-          AGE_GROUP,
-          COUNT(DISTINCT PSID) AS CNT_D_PSID
-        FROM TT_SPECIFIC_ICD_REMAIN_AGE_SEX
-        GROUP BY ICD_GROUP, BJAHR, GESCHLECHT_LABEL, AGE_GROUP
+      SELECT 
+        ICD_GROUP,
+        BJAHR,
+        GESCHLECHT_LABEL,
+        AGE_GROUP,
+        COUNT(DISTINCT PSID) AS CNT_D_PSID
+      FROM TT_SPECIFIC_ICD_REMAIN_AGE_SEX
+      GROUP BY ICD_GROUP, BJAHR, GESCHLECHT_LABEL, AGE_GROUP
     )
     GROUP BY ICD_GROUP, GESCHLECHT_LABEL, AGE_GROUP
     ORDER BY ICD_GROUP, GESCHLECHT_LABEL, AGE_GROUP;
   ")
 }
-
-
+# No VSID changes needed - queries from already-cleaned TT tables, counts are COUNT(DISTINCT PSID)
 
 create_plz_oi_non_oi_sex_table = function(con) {
   
@@ -627,7 +656,6 @@ create_plz_oi_non_oi_sex_table = function(con) {
     ORDER BY CNT_D_PSID_TOTAL DESC;
   ")
 }
-
 
 
 
