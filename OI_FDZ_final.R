@@ -775,7 +775,7 @@ create_plz_oi_non_oi_sex_table = function(CONN) {
 #                                   RUN
 # =============================================================================
 
-run_local_analysis = function(disCONNnect = FALSE) {
+run_local_analysis = function(disconnect = FALSE) {
   CONN <- setup_local_database(".")
   
   icd_rd_code <- "Q780"
