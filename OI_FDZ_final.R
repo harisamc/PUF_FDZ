@@ -1,5 +1,40 @@
-# Best version yet; 
-# Load libraries
+# =============================================================================
+# INSTITUTION:   Berlin Institute of Health @ Charité (BIH)
+# PROJECT TITLE: Screen-for-10_OI: Osteogenesis Imperfecta (ICD-Q78.0)
+#                A study on the epidemiology of Osteogenesis Imperfecta
+#                within the Innovation Fund project FAIR4Rare
+#                (Funding Reference: 01VSF22026)
+# PROJECT ABBREV.:  Screen for OI
+# FILE NUMBER (AKTENZEICHEN):   P31851-81
+# =============================================================================
+
+# =============================================================================
+#             SELECTION CRITERIA FOR GROUPS AND SUBGROUPS:
+# =============================================================================
+# Patients are divided into two groups based on the presence or absence of the
+# ICD-10 code Q78.0 across the selected study years:
+#   - Rare Disease Population:  At least one recorded Q78.0 code
+#   - Remaining Population:     No recorded Q78.0 code
+# =============================================================================
+
+# =============================================================================
+#                               SUMMARY:
+# =============================================================================
+
+# We identify all patients carrying at least one recorded ICD-10 Q78.0 diagnosis
+# across ambulatory and inpatient records, forming the rare disease base population.
+# Using this base, it then derives a demographics table capturing age, sex, and
+# postal code for each patient. In parallel, the script constructs a reference
+# population from all remaining patients with no Q78.0 record, and applies the
+# same demographic extraction. With both populations characterized, it aggregates
+# an age and sex distribution table covering both groups. The script then moves on
+# to co-morbidity profiling, scanning for a predefined set of co-occurring ICD-10
+# codes within the rare disease population and subsequently within the reference
+# population, each stratified by age group and sex. Finally, it produces a
+# geographical overview by summarizing patient counts by postal code across both
+# groups.
+# =============================================================================
+
 
 
 suppressPackageStartupMessages({
@@ -14,23 +49,30 @@ library(duckdb)
 # ----------------------------
 # Setup local DB from CSVs
 setup_local_database = function(csv_dir = ".") {
-  con <- dbConnect(duckdb::duckdb(), dbdir = ":memory:")
+  CONN <- dbconnect(duckdb::duckdb(), dbdir = ":memory:")
   
-  dbWriteTable(con, "AMBDIAG", read.csv(file.path(csv_dir, "AMBDIAG1.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-  dbWriteTable(con, "KHDIAG", read.csv(file.path(csv_dir, "KHDIAG.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-  dbWriteTable(con, "VERS", read.csv(file.path(csv_dir, "VERS.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-  dbWriteTable(con, "VERSQ", read.csv(file.path(csv_dir, "VERSQ.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+  dbWriteTable(CONN, "AMBDIAG", read.csv(file.path(csv_dir, "AMBDIAG1.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+  dbWriteTable(CONN, "KHDIAG", read.csv(file.path(csv_dir, "KHDIAG.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+  dbWriteTable(CONN, "VERS", read.csv(file.path(csv_dir, "VERS.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+  dbWriteTable(CONN, "VERSQ", read.csv(file.path(csv_dir, "VERSQ.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
   
-  dbExecute(con, "CREATE SCHEMA IF NOT EXISTS P31851_123")
+  dbExecute(CONN, "CREATE SCHEMA IF NOT EXISTS P31851_123")
   cat("Local DB setup done.\n")
-  return(con)
+  return(CONN)
 }
 
+# =============================================================================
+#                                   I
+# =============================================================================
+#                   CREATE RARE DISEASE BASE POPULATION
+#                           Temporary Table:
+#                             TT_BASE_ICD
+# =============================================================================
+# GOAL: search for PSIDs with the ICD10 Q78.0
+# =============================================================================
 
-# ------------------------------------------------------------------------ #
-### if a patient has the same ICD_CODE (Q780) in multiple years, only the earliest year (MIN(BJAHR)) is kept
 
-create_base_tables = function(con, icd_rd_code, exact_match = TRUE) {
+create_base_tables = function(CONN, icd_rd_code, exact_match = TRUE) {
   
   where_amb <- if (exact_match) {
     sprintf("WHERE ICDAMB_CODE = '%s'", icd_rd_code)
@@ -39,9 +81,9 @@ create_base_tables = function(con, icd_rd_code, exact_match = TRUE) {
   }
   
   where_kh <- if (exact_match) {
-    sprintf("WHERE ICDKH_CODE = '%s'", icd_rd_code)
+    sprintf("WHERE ICDKH_CODE = '%s' OR SEKICD_CODE = '%s'", icd_rd_code, icd_rd_code)
   } else {
-    sprintf("WHERE ICDKH_CODE LIKE '%s%%'", icd_rd_code)
+    sprintf("WHERE ICDKH_CODE LIKE '%s%%' OR SEKICD_CODE LIKE '%s%%'", icd_rd_code, icd_rd_code)
   }
   
   sql <- paste0("
@@ -57,7 +99,7 @@ create_base_tables = function(con, icd_rd_code, exact_match = TRUE) {
         VSID,
         ICDAMB_CODE AS ICD_CODE, 
         BJAHR
-      FROM AMBDIAG ", where_amb, "
+      FROM P31851_81.DATRAV_AMBDIAG ", where_amb, " 
         AND DIAGSICH = 'G'
  
       UNION ALL
@@ -67,17 +109,27 @@ create_base_tables = function(con, icd_rd_code, exact_match = TRUE) {
         VSID,
         ICDKH_CODE AS ICD_CODE, 
         BJAHR
-      FROM KHDIAG ", where_kh, "
+      FROM P31851_81.DATRAV_KHDIAG ", where_kh, "
     )
     GROUP BY PSID, VSID, ICD_CODE
   ")
   
-  dbExecute(con, sql)
+  dbExecute(CONN, sql)
 }
 
-# VSID added to base_vers and sex CTEs; joins on PSID + VSID
+# =============================================================================
+#                                   II
+# =============================================================================
+#               CREATE A DEMOGRAPHICS TABLE FOR THE RARE DISEASE 
+#                 POPULATION (PSIDs BASED ON THE BASE TABLE)
+#                           Temporary Table:
+#                       TT_DEMOGRAPHICS_RD_UNIQUE
+# =============================================================================
+# GOAL: Identify birth years, sex, geographical distribution for the rare disease 
+# population
+# =============================================================================
 
-create_demographics_table = function(con) {
+create_demographics_table = function(CONN) {
   
   sql <- "
     CREATE LOCAL TEMP TABLE TT_DEMOGRAPHICS_RD_UNIQUE AS
@@ -87,7 +139,7 @@ create_demographics_table = function(con) {
         VSID,
         MIN(GEBJAHR) AS GEBJAHR,
         MIN(PLZ) AS PLZ
-      FROM VERS
+      FROM P31851_81.DATRAV_VERS
       GROUP BY PSID, VSID
     ),
  
@@ -99,7 +151,7 @@ create_demographics_table = function(con) {
           WHEN GESCHLECHT IN (1,2) THEN GESCHLECHT
           ELSE NULL 
         END AS VALID_SEX
-      FROM VERSQ
+      FROM P31851_81.DATRAV_VERSQ
     ),
  
     sex_counts AS (
@@ -143,14 +195,23 @@ create_demographics_table = function(con) {
     WHERE s.GESCHLECHT_LABEL IN ('Male', 'Female')
     "
   
-  dbExecute(con, sql)
+  dbExecute(CONN, sql)
 }
 
-# Exclusion join stays on PSID only (to exclude anyone ever with Q780)
-# VSID added to SELECT for downstream joins
-create_base_population_remaining = function(con) {
+
+# =============================================================================
+#                                   III
+# =============================================================================
+#             CREATE REMAINING POPULATION BASE TABLE 
+#                         Temporary Table:
+#                         TT_REMAINING_POP
+# =============================================================================
+# GOAL: search for PSIDs without the ICD10 Q78.0
+# =============================================================================
+
+create_base_population_remaining = function(CONN) {
   
-  dbExecute(con, "
+  dbExecute(CONN, "
     CREATE LOCAL TEMP TABLE TT_REMAINING_POP AS
     SELECT 
       PSID,
@@ -163,7 +224,7 @@ create_base_population_remaining = function(con) {
         a.VSID,
         a.ICDAMB_CODE AS ICD_CODE,
         a.BJAHR
-      FROM AMBDIAG a
+      FROM P31851_81.DATRAV_AMBDIAG a
       LEFT JOIN TT_BASE_ICD r ON a.PSID = r.PSID
       WHERE r.PSID IS NULL
         AND a.DIAGSICH = 'G'
@@ -175,7 +236,7 @@ create_base_population_remaining = function(con) {
         k.VSID,
         k.ICDKH_CODE AS ICD_CODE,
         k.BJAHR
-      FROM KHDIAG k
+      FROM P31851_81.DATRAV_KHDIAG k
       LEFT JOIN TT_BASE_ICD r ON k.PSID = r.PSID
       WHERE r.PSID IS NULL
     )
@@ -183,12 +244,19 @@ create_base_population_remaining = function(con) {
   ")
 }
 
+# =============================================================================
+#                                   IV
+# =============================================================================
+#               CREATE A DEMOGRAPHICS TABLE FOR THE REMAINING POPULATION  
+#               POPULATION (PSIDs BASED ON THE REMAINING POP. BASE TABLE)
+#                           Temporary Table:
+#                         TT_DEMOGRAPHICS_REMAIN
+# =============================================================================
+# GOAL: Identify birth years, sex, geographical distribution for the remaining 
+# population
+# =============================================================================
 
-# VSID added to vers_clean and sex CTEs; joins on PSID + VSID
-
-
-
-create_demographics_table_remaining = function(con) {
+create_demographics_table_remaining = function(CONN) {
   
   sql <- "
     CREATE LOCAL TEMP TABLE TT_DEMOGRAPHICS_REMAIN AS
@@ -199,7 +267,7 @@ create_demographics_table_remaining = function(con) {
         VSID,
         MIN(GEBJAHR) AS GEBJAHR,
         MIN(PLZ) AS PLZ
-      FROM VERS
+      FROM P31851_81.DATRAV_VERS
       GROUP BY PSID, VSID
     ),
  
@@ -211,7 +279,7 @@ create_demographics_table_remaining = function(con) {
           WHEN GESCHLECHT IN (1,2) THEN GESCHLECHT
           ELSE NULL
         END AS valid_sex
-      FROM VERSQ
+      FROM P31851_81.DATRAV_VERSQ
     ),
  
     sex_counts AS (
@@ -255,12 +323,23 @@ create_demographics_table_remaining = function(con) {
     LEFT JOIN final_sex s ON b.PSID = s.PSID AND b.VSID = s.VSID
   ";
   
-  dbExecute(con, sql)
+  dbExecute(CONN, sql)
 }
 
-# No VSID changes needed - queries from already-cleaned TT tables, counts are COUNT(DISTINCT PSID)
+# =============================================================================
+#                                   V
+# =============================================================================
+#                 CREATE A SEX-AGE DISTRIBUTION
+#         (PSIDs BASED ON THE REMAINING POP. BASE TABLE)
+#                         Result Table 1:
+#                   RT_RD_NON_RD_AGE_SEX_DIST 
+# =============================================================================
 
-create_age_sex_distribution = function(con) {
+# GOAL: Aggregated overview of age and sex groups for the rare disease
+# and remaining population
+# =============================================================================
+
+create_age_sex_distribution = function(CONN) {
   
   sql <- "
     CREATE TABLE RT_RD_NON_RD_AGE_SEX_DIST AS
@@ -308,16 +387,26 @@ create_age_sex_distribution = function(con) {
     GROUP BY ICD_CODE, AGE_GROUP, GESCHLECHT_LABEL;
   "
   
-  dbExecute(con, sql)
+  dbExecute(CONN, sql)
 }
 
+# =============================================================================
+#                                   VI
+# =============================================================================
+# =============================================================================
+#                 CREATE AN OVERVIEW OF SPECIFIC 
+#                 CO-OCCURRING ICD-10 CODES FOR 
+#                       THE RARE DISEASE
+#                       Temporary Tables:
+#                       TT_SPECIFIC_ICD, 
+#                       TT_SPECIFIC_ICD_AGE_SEX
+#                       Result Table 2:
+#                       RT_SPECIFIC_ICD_AGE_SEX_DIST  
+# =============================================================================
+# GOAL: Counts of specific ICD-10 codes found in the rare disease population
+# =============================================================================
 
-# VSID added to TT_SPECIFIC_ICD SELECT
-# Joins to TT_BASE_ICD on PSID + VSID + BJAHR
-# VSID added to vers_clean and sex CTEs in TT_SPECIFIC_ICD_AGE_SEX; joined on PSID + VSID
-
-
-create_icd_occurrence_table_rd = function(con, icd_list) {
+create_icd_occurrence_table_rd = function(CONN, icd_list) {
   
   # -----------------------------------
   # 0. Exact vs prefix codes
@@ -343,7 +432,7 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
       a.ICDAMB_CODE AS ICD_CODE,
       a.ICDAMB_CODE AS ICD_GROUP,
       a.BJAHR
-    FROM AMBDIAG a
+    FROM P31851_81.DATRAV_AMBDIAG a
     INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID AND a.VSID = b.VSID AND a.BJAHR = b.BJAHR
     WHERE ", exact_clause_amb, "
       AND a.DIAGSICH = 'G'
@@ -370,7 +459,7 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
       a.ICDAMB_CODE AS ICD_CODE,
       SUBSTRING(a.ICDAMB_CODE,1,3) AS ICD_GROUP,
       a.BJAHR
-    FROM AMBDIAG a
+    FROM P31851_81.DATRAV_AMBDIAG a
     INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID AND a.VSID = b.VSID AND a.BJAHR = b.BJAHR
     WHERE ", prefix_clause_amb, "
       AND a.DIAGSICH = 'G'
@@ -388,19 +477,19 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
     INNER JOIN TT_BASE_ICD b ON a.PSID = b.PSID AND a.VSID = b.VSID AND a.BJAHR = b.BJAHR
     WHERE ", prefix_clause_kh, ";
   ")
-  dbExecute(con, sql)
+  dbExecute(CONN, sql)
   
   # -----------------------------------
   # 2. Compute age + cleaned sex; VERS and VERSQ joined on PSID + VSID
   # -----------------------------------
-  dbExecute(con, "
+  dbExecute(CONN, "
     CREATE LOCAL TEMP TABLE TT_SPECIFIC_ICD_AGE_SEX AS
     WITH vers_clean AS (
       SELECT 
         PSID,
         VSID,
         MIN(GEBJAHR) AS GEBJAHR
-      FROM VERS
+      FROM P31851_81.DATRAV_VERS
       GROUP BY PSID, VSID
     ),
     cleaned_sex AS (
@@ -411,7 +500,7 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
           WHEN GESCHLECHT IN (1,2) THEN GESCHLECHT
           ELSE NULL
         END AS VALID_SEX
-      FROM VERSQ
+      FROM P31851_81.DATRAV_VERSQ
     ),
     sex_counts AS (
       SELECT
@@ -459,7 +548,7 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
   # -----------------------------------
   # 3. Final aggregated ICD x Sex x Age table - no changes needed
   # -----------------------------------
-  dbExecute(con, "
+  dbExecute(CONN, "
     CREATE TABLE RT_SPECIFIC_ICD_AGE_SEX_DIST AS
     SELECT 
       ICD_GROUP,
@@ -481,10 +570,22 @@ create_icd_occurrence_table_rd = function(con, icd_list) {
   ")
 }
 
-# VSID added to TT_SPECIFIC_ICD_REMAIN SELECT (already in TT_REMAINING_POP)
-# VERS and VERSQ joined on PSID + VSID in TT_SPECIFIC_ICD_REMAIN_AGE_SEX
+# =============================================================================
+#                                   VII
+# =============================================================================
+#                 CREATE AN OVERVIEW OF SPECIFIC 
+#                   CO-OCCURRING ICD-10 CODES 
+#                   FOR THE REMAINING POPULATION
+#                       Temporary Tables:
+#                       TT_SPECIFIC_ICD_REMAIN, 
+#                       TT_SPECIFIC_ICD_REMAIN_AGE_SEX
+#                       Result Table:
+#                       RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN
+# =============================================================================
+# GOAL: Counts of specific ICD-10 codes found in the rare disease population
+# =============================================================================
 
-create_icd_occurrence_table_remaining = function(con, icd_list) {
+create_icd_occurrence_table_remaining = function(CONN, icd_list) {
   
   # -------------------------------
   # 0. Exact vs prefix codes
@@ -528,19 +629,19 @@ create_icd_occurrence_table_remaining = function(con, icd_list) {
     FROM TT_REMAINING_POP
     WHERE ", prefix_clause, "
   ")
-  dbExecute(con, sql)
+  dbExecute(CONN, sql)
   
   # --------------------------------------------------------------
   # 2. Compute age per event year; VERS and VERSQ joined on PSID + VSID
   # --------------------------------------------------------------
-  dbExecute(con, "
+  dbExecute(CONN, "
     CREATE LOCAL TEMP TABLE TT_SPECIFIC_ICD_REMAIN_AGE_SEX AS
     WITH vers_clean AS (
       SELECT 
         PSID,
         VSID,
         MIN(GEBJAHR) AS GEBJAHR
-      FROM VERS
+      FROM P31851_81.DATRAV_VERS
       GROUP BY PSID, VSID
     ),
     cleaned_sex AS (
@@ -551,7 +652,7 @@ create_icd_occurrence_table_remaining = function(con, icd_list) {
           WHEN GESCHLECHT IN (1,2) THEN GESCHLECHT
           ELSE NULL
         END AS VALID_SEX
-      FROM VERSQ
+      FROM P31851_81.DATRAV_VERSQ
     ),
     sex_counts AS (
       SELECT
@@ -598,7 +699,7 @@ create_icd_occurrence_table_remaining = function(con, icd_list) {
   # -------------------------------
   # 3. Aggregate final table - no changes needed
   # -------------------------------
-  dbExecute(con, "
+  dbExecute(CONN, "
     CREATE TABLE RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN AS
     SELECT
       ICD_GROUP,
@@ -619,11 +720,23 @@ create_icd_occurrence_table_remaining = function(con, icd_list) {
     ORDER BY ICD_GROUP, GESCHLECHT_LABEL, AGE_GROUP;
   ")
 }
-# No VSID changes needed - queries from already-cleaned TT tables, counts are COUNT(DISTINCT PSID)
 
-create_plz_oi_non_oi_sex_table = function(con) {
+# =============================================================================
+#                                   VIII
+# =============================================================================
+#                 CREATE AN OVERVIEW OF GEOGRAPHICAL DISTRIBUTION
+#             FOR THE RARE DISEASE POPULATION RELATIVE TO THE REMANINING 
+#                           POPULATION  
+#                           Result Table:
+#                       RT_PLZ_OI_NON_OI_SEX
+# =============================================================================
+# GOAL: Count the rare disease PSIDs in the respective 1-digit PLZs,
+# relative to the remaining population
+# =============================================================================
+
+create_plz_oi_non_oi_sex_table = function(CONN) {
   
-  dbExecute(con, "
+  dbExecute(CONN, "
     CREATE TABLE RT_PLZ_OI_NON_OI_SEX AS
     WITH rd_base AS (
       SELECT 
@@ -658,68 +771,45 @@ create_plz_oi_non_oi_sex_table = function(con) {
 }
 
 
+# =============================================================================
+#                                   RUN
+# =============================================================================
 
-# Main workflow
-run_local_analysis = function(disconnect = FALSE) {
-  con <- setup_local_database(".")
+run_local_analysis = function(disCONNnect = FALSE) {
+  CONN <- setup_local_database(".")
   
   icd_rd_code <- "Q780"
   icd_list <- c("S02","S12","S22","S32","S42","S52","S62","S72",
                 "S82","S92","T02","T08","T10","T12","M54","I10","I15",
                 "R52","M25","M796","M798","M799", "O30")
   
-  create_base_tables(con, icd_rd_code, exact_match=TRUE)
-  create_demographics_table(con)
-  create_base_population_remaining(con)
-  create_demographics_table_remaining(con)
-  create_age_sex_distribution(con)
-  create_icd_occurrence_table_rd(con, icd_list)
-  create_icd_occurrence_table_remaining(con, icd_list)
-  create_plz_oi_non_oi_sex_table(con)
+  create_base_tables(CONN, icd_rd_code, exact_match=TRUE)
+  create_demographics_table(CONN)
+  create_base_population_remaining(CONN)
+  create_demographics_table_remaining(CONN)
+  create_age_sex_distribution(CONN)
+  create_icd_occurrence_table_rd(CONN, icd_list)
+  create_icd_occurrence_table_remaining(CONN, icd_list)
+  create_plz_oi_non_oi_sex_table(CONN)
   
   cat("All RT tables created successfully.\n")
-  if (disconnect) {
-    dbDisconnect(con, shutdown = TRUE)
+  if (disCONNnect) {
+    dbDisCONNnect(CONN, shutdown = TRUE)
     return(NULL)
   }
-  return(con)
+  return(CONN)
 }
 
-# Open connection
-con <- run_local_analysis(disconnect=FALSE)
+# Open Connection
+# CONN <- run_local_analysis(disconnect=FALSE)
 
 
-RT_RD_NON_RD_AGE_SEX_DIST=dbGetQuery(con, "SELECT * FROM RT_RD_NON_RD_AGE_SEX_DIST")
+RT_RD_NON_RD_AGE_SEX_DIST=dbGetQuery(CONN, "SELECT * FROM RT_RD_NON_RD_AGE_SEX_DIST")
 write.csv(RT_RD_NON_RD_AGE_SEX_DIST, "RT_RD_NON_RD_AGE_SEX_DIST.csv", row.names = FALSE)
-RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN=dbGetQuery(con, "SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN")
+RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN=dbGetQuery(CONN, "SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN")
 write.csv(RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN, "RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN.csv", row.names = FALSE)
-RT_SPECIFIC_ICD_AGE_SEX_DIST=dbGetQuery(con, "SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST")
+RT_SPECIFIC_ICD_AGE_SEX_DIST=dbGetQuery(CONN, "SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST")
 write.csv(RT_SPECIFIC_ICD_AGE_SEX_DIST, "RT_SPECIFIC_ICD_AGE_SEX_DIST.csv", row.names = FALSE)
-RT_PLZ_OI_NON_OI_SEX=dbGetQuery(con, "SELECT * FROM RT_PLZ_OI_NON_OI_SEX")
+RT_PLZ_OI_NON_OI_SEX=dbGetQuery(CONN, "SELECT * FROM RT_PLZ_OI_NON_OI_SEX")
 write.csv(RT_PLZ_OI_NON_OI_SEX, "RT_PLZ_OI_NON_OI_SEX.csv", row.names = FALSE)
 
-
-# # # Find PSIDs that appear in multiple age groups
-# a=dbGetQuery(con, "
-#   SELECT
-#     PSID,
-#     STRING_AGG(DISTINCT AGE_GROUP, ', ') AS age_groups,
-#     STRING_AGG(DISTINCT CAST(BJAHR AS VARCHAR) || ':' || AGE_GROUP, ', ') AS year_age_pairs,
-#     COUNT(DISTINCT AGE_GROUP) AS num_age_groups
-#   FROM  TT_SPECIFIC_ICD_AGE_SEX_DIST -- TT_SPECIFIC_ICD_AGE_SEX_DIST; TT_SPECIFIC_ICD_REMAIN_AGE_SEX
-#   GROUP BY PSID
-#   HAVING COUNT(DISTINCT AGE_GROUP) > 1
-#   ORDER BY num_age_groups DESC")
-# 
-# 
-# psid_row <- dbGetQuery(con, "
-#   SELECT *
-#   FROM TT_SPECIFIC_ICD_AGE_SEX_DIST -- TT_SPECIFIC_ICD_AGE_SEX_DIST, ; TT_SPECIFIC_ICD_REMAIN_AGE_SEX
-#   WHERE PSID = '2d92b4cf98e7901fb9d9ac80f7eef3c75ed0a6fa79dd61a7356476dd4c9b5af3'
-# ")
-
-#goal is to pick the ones that have one unique value, either unique male or unique female. 
-#but if a psid has multiple and mixed entries then palce them into the unknown
-# If a PSID has only 1 distinct Geschlecht, use that
-
-# If a PSID has mixed values (e.g., both 1 and 2, or includes 0/9/NULL), → Unknown
