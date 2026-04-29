@@ -37,29 +37,29 @@
 
 
 
-suppressPackageStartupMessages({
-  library(DBI)
-  library(dplyr)
-})
-
-if (!requireNamespace("duckdb", quietly = TRUE)) 
-  install.packages("duckdb")
-library(duckdb)
-
-# ----------------------------
-# Setup local DB from CSVs
-setup_local_database = function(csv_dir = ".") {
-  CONN <- dbconnect(duckdb::duckdb(), dbdir = ":memory:")
-  
-  dbWriteTable(CONN, "AMBDIAG", read.csv(file.path(csv_dir, "AMBDIAG1.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-  dbWriteTable(CONN, "KHDIAG", read.csv(file.path(csv_dir, "KHDIAG.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-  dbWriteTable(CONN, "VERS", read.csv(file.path(csv_dir, "VERS.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-  dbWriteTable(CONN, "VERSQ", read.csv(file.path(csv_dir, "VERSQ.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-  
-  dbExecute(CONN, "CREATE SCHEMA IF NOT EXISTS P31851_123")
-  cat("Local DB setup done.\n")
-  return(CONN)
-}
+# suppressPackageStartupMessages({
+#   library(DBI)
+#   library(dplyr)
+# })
+# 
+# if (!requireNamespace("duckdb", quietly = TRUE)) 
+#   install.packages("duckdb")
+# library(duckdb)
+# 
+# # ----------------------------
+# # Setup local DB from CSVs
+# setup_local_database = function(csv_dir = ".") {
+#   CONN <- dbconnect(duckdb::duckdb(), dbdir = ":memory:")
+#   
+#   dbWriteTable(CONN, "AMBDIAG", read.csv(file.path(csv_dir, "AMBDIAG1.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+#   dbWriteTable(CONN, "KHDIAG", read.csv(file.path(csv_dir, "KHDIAG.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+#   dbWriteTable(CONN, "VERS", read.csv(file.path(csv_dir, "VERS.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+#   dbWriteTable(CONN, "VERSQ", read.csv(file.path(csv_dir, "VERSQ.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+#   
+#   dbExecute(CONN, "CREATE SCHEMA IF NOT EXISTS P31851_123")
+#   cat("Local DB setup done.\n")
+#   return(CONN)
+# }
 
 # =============================================================================
 #                                   I
