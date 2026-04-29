@@ -37,29 +37,29 @@
 
 
 
-suppressPackageStartupMessages({
-  library(DBI)
-  library(dplyr)
-})
-
-if (!requireNamespace("duckdb", quietly = TRUE))
-  install.packages("duckdb")
-library(duckdb)
-
-# ----------------------------
-# Setup local DB from CSVs
-setup_local_database = function(csv_dir = ".") {
-  CONN <- dbconnect(duckdb::duckdb(), dbdir = ":memory:")
-
-  dbWriteTable(CONN, "AMBDIAG", read.csv(file.path(csv_dir, "AMBDIAG1.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-  dbWriteTable(CONN, "KHDIAG", read.csv(file.path(csv_dir, "KHDIAG.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-  dbWriteTable(CONN, "VERS", read.csv(file.path(csv_dir, "VERS.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-  dbWriteTable(CONN, "VERSQ", read.csv(file.path(csv_dir, "VERSQ.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
-
-  dbExecute(CONN, "CREATE SCHEMA IF NOT EXISTS P31851_123")
-  cat("Local DB setup done.\n")
-  return(CONN)
-}
+# suppressPackageStartupMessages({
+#   library(DBI)
+#   library(dplyr)
+# })
+# 
+# if (!requireNamespace("duckdb", quietly = TRUE))
+#   install.packages("duckdb")
+# library(duckdb)
+# 
+# # ----------------------------
+# # Setup local DB from CSVs
+# setup_local_database = function(csv_dir = ".") {
+#   CONN <- dbconnect(duckdb::duckdb(), dbdir = ":memory:")
+# 
+#   dbWriteTable(CONN, "AMBDIAG", read.csv(file.path(csv_dir, "AMBDIAG1.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+#   dbWriteTable(CONN, "KHDIAG", read.csv(file.path(csv_dir, "KHDIAG.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+#   dbWriteTable(CONN, "VERS", read.csv(file.path(csv_dir, "VERS.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+#   dbWriteTable(CONN, "VERSQ", read.csv(file.path(csv_dir, "VERSQ.csv"), stringsAsFactors = FALSE), overwrite=TRUE)
+# 
+#   dbExecute(CONN, "CREATE SCHEMA IF NOT EXISTS P31851_123")
+#   cat("Local DB setup done.\n")
+#   return(CONN)
+# }
 
 # =============================================================================
 #                                   I
@@ -72,7 +72,7 @@ setup_local_database = function(csv_dir = ".") {
 # =============================================================================
 
 
-create_base_tables = function(CONN, icd_rd_code, exact_match = TRUE) {
+#create_base_tables = function(CONN, icd_rd_code, exact_match = TRUE) {
   
   where_amb <- if (exact_match) {
     sprintf("WHERE ICDAMB_CODE = '%s'", icd_rd_code)
@@ -129,7 +129,7 @@ create_base_tables = function(CONN, icd_rd_code, exact_match = TRUE) {
 # population
 # =============================================================================
 
-create_demographics_table = function(CONN) {
+#create_demographics_table = function(CONN) {
   
   sql <- "
     CREATE LOCAL TEMP TABLE TT_DEMOGRAPHICS_RD_UNIQUE AS
@@ -209,7 +209,7 @@ create_demographics_table = function(CONN) {
 # GOAL: search for PSIDs without the ICD10 Q78.0
 # =============================================================================
 
-create_base_population_remaining = function(CONN) {
+#create_base_population_remaining = function(CONN) {
   
   dbExecute(CONN, "
     CREATE LOCAL TEMP TABLE TT_REMAINING_POP AS
@@ -256,7 +256,7 @@ create_base_population_remaining = function(CONN) {
 # population
 # =============================================================================
 
-create_demographics_table_remaining = function(CONN) {
+#create_demographics_table_remaining = function(CONN) {
   
   sql <- "
     CREATE LOCAL TEMP TABLE TT_DEMOGRAPHICS_REMAIN AS
@@ -339,7 +339,7 @@ create_demographics_table_remaining = function(CONN) {
 # and remaining population
 # =============================================================================
 
-create_age_sex_distribution = function(CONN) {
+#create_age_sex_distribution = function(CONN) {
   
   sql <- "
     CREATE TABLE RT_RD_NON_RD_AGE_SEX_DIST AS
@@ -406,7 +406,7 @@ create_age_sex_distribution = function(CONN) {
 # GOAL: Counts of specific ICD-10 codes found in the rare disease population
 # =============================================================================
 
-create_icd_occurrence_table_rd = function(CONN, icd_list) {
+#create_icd_occurrence_table_rd = function(CONN, icd_list) {
   
   # -----------------------------------
   # 0. Exact vs prefix codes
@@ -585,7 +585,7 @@ create_icd_occurrence_table_rd = function(CONN, icd_list) {
 # GOAL: Counts of specific ICD-10 codes found in the rare disease population
 # =============================================================================
 
-create_icd_occurrence_table_remaining = function(CONN, icd_list) {
+#create_icd_occurrence_table_remaining = function(CONN, icd_list) {
   
   # -------------------------------
   # 0. Exact vs prefix codes
@@ -734,7 +734,7 @@ create_icd_occurrence_table_remaining = function(CONN, icd_list) {
 # relative to the remaining population
 # =============================================================================
 
-create_plz_oi_non_oi_sex_table = function(CONN) {
+#create_plz_oi_non_oi_sex_table = function(CONN) {
   
   dbExecute(CONN, "
     CREATE TABLE RT_PLZ_OI_NON_OI_SEX AS
@@ -793,8 +793,8 @@ run_local_analysis = function(disconnect = FALSE) {
   create_plz_oi_non_oi_sex_table(CONN)
   
   cat("All RT tables created successfully.\n")
-  if (disCONNnect) {
-    dbDisCONNnect(CONN, shutdown = TRUE)
+  if (disConnect) {
+    dbDisonnect(CONN, shutdown = TRUE)
     return(NULL)
   }
   return(CONN)
@@ -804,12 +804,12 @@ run_local_analysis = function(disconnect = FALSE) {
 # CONN <- run_local_analysis(disconnect=FALSE)
 
 
-RT_RD_NON_RD_AGE_SEX_DIST=dbGetQuery(CONN, "SELECT * FROM RT_RD_NON_RD_AGE_SEX_DIST")
-write.csv(RT_RD_NON_RD_AGE_SEX_DIST, "RT_RD_NON_RD_AGE_SEX_DIST.csv", row.names = FALSE)
-RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN=dbGetQuery(CONN, "SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN")
-write.csv(RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN, "RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN.csv", row.names = FALSE)
-RT_SPECIFIC_ICD_AGE_SEX_DIST=dbGetQuery(CONN, "SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST")
-write.csv(RT_SPECIFIC_ICD_AGE_SEX_DIST, "RT_SPECIFIC_ICD_AGE_SEX_DIST.csv", row.names = FALSE)
-RT_PLZ_OI_NON_OI_SEX=dbGetQuery(CONN, "SELECT * FROM RT_PLZ_OI_NON_OI_SEX")
-write.csv(RT_PLZ_OI_NON_OI_SEX, "RT_PLZ_OI_NON_OI_SEX.csv", row.names = FALSE)
+# RT_RD_NON_RD_AGE_SEX_DIST=dbGetQuery(CONN, "SELECT * FROM RT_RD_NON_RD_AGE_SEX_DIST")
+# write.csv(RT_RD_NON_RD_AGE_SEX_DIST, "RT_RD_NON_RD_AGE_SEX_DIST.csv", row.names = FALSE)
+# RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN=dbGetQuery(CONN, "SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN")
+# write.csv(RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN, "RT_SPECIFIC_ICD_AGE_SEX_DIST_REMAIN.csv", row.names = FALSE)
+# RT_SPECIFIC_ICD_AGE_SEX_DIST=dbGetQuery(CONN, "SELECT * FROM RT_SPECIFIC_ICD_AGE_SEX_DIST")
+# write.csv(RT_SPECIFIC_ICD_AGE_SEX_DIST, "RT_SPECIFIC_ICD_AGE_SEX_DIST.csv", row.names = FALSE)
+# RT_PLZ_OI_NON_OI_SEX=dbGetQuery(CONN, "SELECT * FROM RT_PLZ_OI_NON_OI_SEX")
+# write.csv(RT_PLZ_OI_NON_OI_SEX, "RT_PLZ_OI_NON_OI_SEX.csv", row.names = FALSE)
 
