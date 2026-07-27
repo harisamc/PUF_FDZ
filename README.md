@@ -4,6 +4,12 @@ A worked example and practical guide for researchers filing an **Antrag** at the
 
 This project analyzes the distribution of Osteogenesis Imperfecta (OI, ICD-10 Q78.0) and its comorbidities in the German GKV population using FDZ-G data. It was developed by [LABRADOR](https://github.com/harisamc/LabValues) as a first step toward rare disease surveillance using routine claims data.
 
+[!NOTE]                                                                         
+  > The documentation of the planned Result Tables is captured in
+  `oi_fdz_vorschlag2.pdf`. It was written prior to entering the Analyseraum and     
+  therefore slightly deviates from the final analysis, such that some broader
+  aggregation took place for certain comorbidity codes, and the PLZ table was       
+  omitted. It can nevertheless be consulted as an entry point for one's analysis.
 ---
 
 ## What is FDZ-G and the 1%-PUF?
