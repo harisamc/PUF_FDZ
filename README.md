@@ -19,7 +19,7 @@ Access to the **full productive dataset** requires a formal application (Antrag)
 
 ### Data model (Datenmodell 3)
 
-All analyses are based on four source tables:
+Our analyses are based on four source tables:
 
 | Table | Description | Key columns |
 |---|---|---|
