@@ -2,7 +2,7 @@
 
 A worked example and practical guide for researchers filing an **Antrag** at the Forschungsdatenzentrum Gesundheit (FDZ-G) and running a statutory health insurance (GKV) billing data analysis.
 
-This project analyzes the distribution of Osteogenesis Imperfecta (OI, ICD-10 Q78.0) and its comorbidities in the German GKV population using FDZ-G data. It was developed by [LABRADOR](https://github.com/harisamc/LabValues) as a first step toward rare disease surveillance using routine claims data.
+This project analyzes the distribution of Osteogenesis Imperfecta (OI, ICD-10 Q78.0) and its comorbidities in the German GKV population using FDZ-G data. It was initiated by [LABRADOR](https://github.com/harisamc/LabValues) as a first step toward rare disease surveillance using **claims data** and as a part of FAIR4RARE.
 
 [!NOTE]                                                                         
   > The documentation of the planned Result Tables is captured in
