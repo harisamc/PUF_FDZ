@@ -68,9 +68,9 @@ Total/summary rows and columns are not permitted in result tables. This prevents
 
 ### Lesson from This Project: PLZ Granularity
 
-Our initial design used **5-digit postal codes** for geographic analysis. This produced **8,179 rows** in Table 4 alone — far exceeding the 2,400-cell limit and creating thousands of cells below the MIN_CELL threshold.
+Our initial design used **5-digit postal codes** for geographic analysis (1% PUF). This produced **8,179 rows** in Table 4 alone — far exceeding the 2,400-cell limit and creating thousands of cells below the MIN_CELL threshold. This can therefore be ignored. 
 
-**Solution**: Collapse PLZ to its **first digit only** (10 postal regions in Germany). This reduces Table 4 to 10 rows × 5 columns = 50 data cells, well within the constraints.
+**Solution**: Collapse PLZ to its **first digit only** (10 postal regions in Germany). This reduces Table 4 to 10 rows × 5 columns = 50 data cells, well within the constraints. We had to remove the table for PLZ because of the small n in the rows. 
 
 The takeaway: **granularity that feels natural analytically can be completely infeasible under FDZ-G rules.** Compute your dimensions on paper before filing the Antrag.
 
